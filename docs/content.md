@@ -53,7 +53,7 @@ $ docker run -d hashicorp/consul dev -join=172.17.0.2
 ... server 3 starts
 ```
 
-Then, choosing any one of the container IDs, we can query for all the members in the cluster by runing a Consul CLI command:
+Then, choosing any one of the container IDs, we can query for all the members in the cluster by running a Consul CLI command:
 
 ```console
 $ docker exec -t c9caabfd4c2a consul members
@@ -188,7 +188,7 @@ consul.service.consul.  0       IN      A       66.175.220.234
 
 There are several approaches you can use to register services running in containers with Consul. For manual configuration, your containers can use the local agent's APIs to register and deregister themselves, see the [Agent API](https://www.consul.io/docs/agent/http/agent.html) for more details. Another strategy could be to create a derived Consul container for each host type which includes JSON config files for Consul to parse at startup, see [Services](https://www.consul.io/docs/agent/services.html) for more information. Both of these approaches are fairly cumbersome, and the configured services may fall out of sync if containers die or additional containers are started.
 
-If you run your containers under [HashiCorp's Nomad](https://www.nomadproject.io/) scheduler, it has [first class support for Cosnul](https://www.nomadproject.io/docs/jobspec/servicediscovery.html). The Nomad agent runs on each host alongside the Consul agent. When jobs are scheduled on a given host, the Nomad agent automatically takes care of syncing the Consul agent with the service information. This is very easy to manage, and even services on hosts running outside of Docker containers can be managed by Nomad and registered with Consul. You can find out more about running Docker under Nomad in the [Docker Driver](https://www.nomadproject.io/docs/drivers/docker.html) guide.
+If you run your containers under [HashiCorp's Nomad](https://www.nomadproject.io/) scheduler, it has [first class support for Consul](https://www.nomadproject.io/docs/jobspec/servicediscovery.html). The Nomad agent runs on each host alongside the Consul agent. When jobs are scheduled on a given host, the Nomad agent automatically takes care of syncing the Consul agent with the service information. This is very easy to manage, and even services on hosts running outside of Docker containers can be managed by Nomad and registered with Consul. You can find out more about running Docker under Nomad in the [Docker Driver](https://www.nomadproject.io/docs/drivers/docker.html) guide.
 
 Another option is the open source [Registrator](http://gliderlabs.com/registrator/latest/) project from Glider Labs. Registrator works by running a Registrator instance on each host, alongside the Consul agent. Registrator monitors the Docker daemon for container stop and start events, and handles service registration with Consul using the container names and exposed ports as the service information. Here's a complete example.
 
