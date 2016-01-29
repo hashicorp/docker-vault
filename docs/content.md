@@ -257,3 +257,7 @@ $ curl http://localhost:8500/v1/catalog/service/redis?pretty
 ```
 
 Note that in the example above that the service address is the same as the external address of the host, and that the service ports are the mapped ports exposed on the host (32775, 32776, 32777). There are configuration options that control which IP and port Registrator gives to Consul, which may need to be adjusted depending on your network configuration. See Registrator's [Run Reference](http://gliderlabs.com/registrator/latest/user/run/) for more details.
+
+## Running Health Checks in Docker Containers
+
+Consul has the ability to execute health checks inside containers. If the Docker daemon is exposed to the Consul agent and the `DOCKER_HOST` environment variable is set, then checks can be configured with the Docker container ID to execute in. See the [health checks](https://www.consul.io/docs/agent/checks.html) guide for more details.
