@@ -34,7 +34,7 @@ An entry point script is provided that provides several common configurations:
 
 The container exposes `VOLUME /consul/data`, which is a path were Consul will place its persisted state. This isn't used in any way when running in the `dev` configuration. For client agents, this stores some information about the cluster and the client's health checks, in case the container is restarted. For server agents, this stores the client information plus snapshots and data related to the consensus algorithm and Consul's catalog of services. For servers it is highly desirable to keep this volume's data around when restarting the containers to recover from outage scenarios.
 
-Additionally, these entry points run consul with two [configuration directories](https://www.consul.io/docs/agent/options.html#_config_dir). There's a common directory `/consul/config` as well as one specific to client or server mode (`/consul/config/client` and `/consul/config/server`). The mode-specific directories contain files that are shipped with the container and provide good default options suggested by HashiCorp. You can override any of these settings by composing a new container and adding files to `/consul/config`, which is loaded last when starting up.
+Additionally, these entry points run consul with two [configuration directories](https://www.consul.io/docs/agent/options.html#_config_dir). There's a common directory `/consul/config/local` as well as one specific to client or server mode (`/consul/config/client` and `/consul/config/server`). The mode-specific directories contain files that are shipped with the container and provide good default options suggested by HashiCorp. You can override any of these settings by composing a new container or binding a volume to `/consul/config/local`, which is loaded last when starting up.
 
 Since Consul is almost always run with `--net=host` in Docker, some care is required when configuring Consul's IP addresses. Consul has the concept of its cluster address as well as its client address. The cluster address is the address at which other Consul agents may contact a given agent. The client address is the address where other processes on the host contact Consul in order to make HTTP or DNS requests. You will typically need to tell Consul what its cluster address is when starting so that it binds to the correct interface and advertises a workable interface to the rest of the Consul agents. You'll see this in the examples below as the `-bind=<external ip>` argument to Consul.
 
@@ -89,7 +89,7 @@ This runs a Consul client agent sharing the host's network and advertising the e
 
 The `-retry-join` parameter specifies the external IP of one other agent in the cluster to use to join at startup. There are several ways to control how an agent joins the cluster, see the [agent configuration](https://www.consul.io/docs/agent/options.html) guide for more details on the `-join`, `-retry-join`, and `-atlas-join` options.
 
-At startup, the agent will read config JSON files from `/consul/config/client` then `/consul/config`. Data will be persisted in the `/consul/data` volume.
+At startup, the agent will read config JSON files from `/consul/config/client` then `/consul/config/local`. Data will be persisted in the `/consul/data` volume.
 
 Here are some example queries on a host with an external IP of 66.175.220.234:
 
@@ -150,7 +150,7 @@ This runs a Consul server agent sharing the host's network. All of the network c
 
 Just like the client agent, the `-retry-join` parameter specifies the external IP of one other agent in the cluster to use to join at startup. There are several ways to control how an agent joins the cluster, see the [agent configuration](https://www.consul.io/docs/agent/options.html) guide for more details on the `-join`, `-retry-join`, and `-atlas-join` options. The server agent also consumes a `-bootstrap-expect` option that specifies how many server agents to watch for before bootstrapping the cluster for the first time. This provides an easy way to get an orderly startup with a new cluster. See the [agent configuration](https://www.consul.io/docs/agent/options.html) guide for more details on the `-bootstrap` and `-bootstrap-expect` options.
 
-At startup, the agent will read config JSON files from `/consul/config/server` then `/consul/config`. Data will be persisted in the `/consul/data` volume.
+At startup, the agent will read config JSON files from `/consul/config/server` then `/consul/config/local`. Data will be persisted in the `/consul/data` volume.
 
 Once the cluster is bootstrapped and quorum is achieved, you must use care to try to keep the minimum number of servers operating in order to avoid an outage state for the cluster. The deployment table in the [consensus](https://www.consul.io/docs/internals/consensus.html) guide outlines the number of servers required for different configurations. There's also an [adding/removing servers](https://www.consul.io/docs/guides/servers.html) guide that describes that process, which is relevant to Docker configurations as well. The [outage recovery](https://www.consul.io/docs/guides/outage.html) guide has steps to perform if servers are permanently lost. In general it's best to restart or replace servers one at a time, making sure servers are healthy before proceeding to the next server.
 

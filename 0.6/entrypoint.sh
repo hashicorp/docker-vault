@@ -24,7 +24,7 @@ if [ "$1" = 'dev' ]; then
     gosu consul \
         consul agent \
          -dev \
-         -config-dir="$CONSUL_CONFIG_DIR" \
+         -config-dir="$CONSUL_CONFIG_DIR/local" \
          "$@"
 elif [ "$1" = 'client' ]; then
     shift
@@ -32,7 +32,7 @@ elif [ "$1" = 'client' ]; then
         consul agent \
          -data-dir="$CONSUL_DATA_DIR" \
          -config-dir="$CONSUL_CONFIG_DIR/client" \
-         -config-dir="$CONSUL_CONFIG_DIR" \
+         -config-dir="$CONSUL_CONFIG_DIR/local" \
          "$@"
 elif [ "$1" = 'server' ]; then
     shift
@@ -41,7 +41,7 @@ elif [ "$1" = 'server' ]; then
          -server \
          -data-dir="$CONSUL_DATA_DIR" \
          -config-dir="$CONSUL_CONFIG_DIR/server" \
-         -config-dir="$CONSUL_CONFIG_DIR" \
+         -config-dir="$CONSUL_CONFIG_DIR/local" \
          "$@"
 else
     exec "$@"

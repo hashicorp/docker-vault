@@ -18,10 +18,11 @@ RUN set -x && \
     rm consul.zip
 
 # The /consul/data dir is used by Consul to store state. The agent will be started
-# with /consul/config as the configuration directory so you can add additional
+# with /consul/config/local as the configuration directory so you can add additional
 # config files in that location. There are client and server-specific locations so
 # we can supply some default configs via this base image as well.
 RUN mkdir -p /consul/data && \
+    mkdir -p /consul/config/local && \
     mkdir -p /consul/config/client && \
     mkdir -p /consul/config/server && \
     chown -R consul:consul /consul
