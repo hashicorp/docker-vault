@@ -29,8 +29,10 @@ RUN mkdir -p /consul/data && \
 
 # Client mode has some default configuration that's good for running in containers,
 # namely agents will leave the cluster if you stop the container. This isn't
-# usually desirable for servers so we don't include it there.
-ADD client.json /consul/config/client
+# usually desirable for servers so we set the opposite for servers and also skip
+# leaving when servers are interrupted.
+COPY client.json /consul/config/client
+COPY server.json /consul/config/server
 
 # Set up dnsmasq. This config location allows for easily injecting more server
 # configs into a derived container.
@@ -57,7 +59,7 @@ EXPOSE 53 53/udp
 # Consul doesn't need root privileges so we run it as the consul user from the
 # entry point script. The entry point script also uses dumb-init as the top-level
 # process to reap any zombie processes created by Consul sub-processes.
-ADD entrypoint.sh /
+COPY entrypoint.sh /
 ENTRYPOINT ["/entrypoint.sh"]
 
 # By default you'll get a single-node development server that stores everything
