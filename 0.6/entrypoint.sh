@@ -6,12 +6,6 @@ set -e
 # wouldn't do either of these functions so we'd leak zombies as well as do
 # unclean termination of all our sub-processes.
 
-# Optionally run dnsmasq to expose Consul's DNS server on port 53 without
-# running Consul itself as root.
-if [ -n "$CONSUL_ENABLE_DNSMASQ" ]; then
-    sh -c 'dnsmasq -k -x /dnsmasq/pid --server=/consul/127.0.0.1#8600 --conf-dir=/dnsmasq/config; kill -TERM 1' &
-fi
-
 # This exposes three different modes, and allows for the execution of arbitrary
 # commands if one of these modes isn't chosen. Each of the modes will read from
 # the config directory, allowing for easy customization by placing JSON files
@@ -46,6 +40,3 @@ elif [ "$1" = 'server' ]; then
 else
     exec "$@"
 fi
-
-# If Consul exits then kill everything else.
-kill -TERM 1
