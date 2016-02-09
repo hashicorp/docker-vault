@@ -1,4 +1,4 @@
-# HashiCorp Official Docker Consul Image
+# Consul Official Image Build
 
 There are several pieces that are used to build this image:
 
