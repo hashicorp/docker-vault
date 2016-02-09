@@ -23,7 +23,7 @@ We don't cover Consul's multi-datacenter capability here, but as long as `--net=
 
 The container is derived from a custom Hashicorp base container that is built from BusyBox with a few additional items added. We chose BusyBox as a lightweight base with a reasonably small surface area for security concerns, but with enough functionality for development, interactive debugging, and useful health, watch, and exec scripts running under Consul in the container.
 
-Consul always runs under [dumb-init](https://github.com/Yelp/dumb-init), which handles reaping zombie processes and forwards signals on to all processes running in the container. We also use [gosu](https://github.com/tianon/gosu) to run Consul as a non-root "consul" user for better security. Finally, [dnsmasq](http://www.thekelleys.org.uk/dnsmasq/doc.html) is included but not activated by default in order to expose DNS on port 53 without running Consul as a root user. These binaries are all built by HashiCorp and signed with our [GPG key](https://www.hashicorp.com/security.html), so you can verify those using the signatures included in the container. More details on the DNS configuration with dnsmasq are included in a section below.
+Consul always runs under [dumb-init](https://github.com/Yelp/dumb-init), which handles reaping zombie processes and forwards signals on to all processes running in the container. We also use [gosu](https://github.com/tianon/gosu) to run Consul as a non-root "consul" user for better security. These binaries are all built by HashiCorp and signed with our [GPG key](https://www.hashicorp.com/security.html), so you can verify the signed package used to build a given base image.
 
 An entry point script is provided that provides several common configurations:
 
@@ -156,28 +156,24 @@ Once the cluster is bootstrapped and quorum is achieved, you must use care to tr
 
 ## Exposing Consul's DNS Server on Port 53
 
-By default the dev, client, and server modes started by the endpoint will expose Consul's DNS server on port 8600. Because this is cumbersome to configure with facilities like `resolv.conf`, we have bundled a dnsmasq DNS server in the container, but it's disabled by default. It can be enabled for any of the entry point modes by setting the following options:
+By default the dev, client, and server modes started by the endpoint will expose Consul's DNS server on port 8600. Because this is cumbersome to configure with facilities like `resolv.conf`, you may want to expose DNS on port 53 using port arguments on your run command:
 
 ```console
-$ docker run --net=host --cap-add=NET_ADMIN -e "CONSUL_ENABLE_DNSMASQ=1" hashicorp/consul
+$ docker run --net=host -p 53:8600/tcp -p 53:8600/udp hashicorp/consul
 ```
-
-Both parts are required. The `--cap-add=NET_ADMIN` option allows dnsmasq to start as the "root" user and then downgrade to "nobody" once it has bound to port 53, and the `-e "CONSUL_ENABLE_DNSMASQ=1"` option is used by the entry point script to start dnsmasq. The script is set up so that if the dnsmasq or Consul process dies, everything else in the container is killed, so Consul and dnsmasq behave as a single process in that respect.
-
-At startup, dnsmasq will read configuration files in `/dnsmasq/config`, so if you create your own container based on Consul, you can add additional configuration there.
 
 If you are binding Consul's client interfaces to the host's loopback address, then you should be able to configure your host's `resolv.conf` to route DNS requests to Consul by including "127.0.0.1" as the primary DNS server. Due to Docker's built-in DNS server, you can't point to this directly from inside your containers; Docker will issue an error message if you attempt to do this.
 
 If you are binding Consul's client interfaces to the bridge or other network, you can use the `--dns` option in your _other containers_ in order for them to use dnsmasq in the Consul container. Here's an example:
 
 ```console
-$ docker run -d --net=host --cap-add=NET_ADMIN -e "CONSUL_ENABLE_DNSMASQ=1" consul client -bind=<external ip>
+$ docker run -d --net=host -p 53:8600/tcp -p 53:8600/udp consul client -bind=<ip>
 ```
 
-Now start another container and point it at Consul's DNS via dnsmasq, using the bridge address of the host:
+Now start another container and point it at Consul's DNS, using the bridge address of the host:
 
 ```console
-$ docker run -i --dns=172.17.0.1 -t ubuntu sh -c "apt-get install -y dnsutils && dig consul.service.consul"
+$ docker run -i --dns=<ip> -t ubuntu sh -c "apt-get install -y dnsutils && dig consul.service.consul"
 ...
 ;; ANSWER SECTION:
 consul.service.consul.  0       IN      A       66.175.220.234
