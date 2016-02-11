@@ -1,7 +1,3 @@
-# Official Consul Docker Image
-
-This is a work in progress. The contents here aim to be a new repo under https://github.com/docker-library/, and the docs folder aims to eventually be a folder under https://github.com/docker-library/docs, but is included here so we can iterate on feedback before we open the PRs.
-
 # About this Repo
 
 This is the Git repo of the Docker [official image](https://docs.docker.com/docker-hub/official_repos/) for [consul](https://registry.hub.docker.com/_/consul/). See [the Docker Hub page](https://registry.hub.docker.com/_/consul/) for the full readme on how to use this Docker image and for information regarding contributing and issues.
