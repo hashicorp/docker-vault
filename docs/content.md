@@ -164,7 +164,7 @@ $ docker run --net=host -p 53:8600/tcp -p 53:8600/udp hashicorp/consul
 
 If you are binding Consul's client interfaces to the host's loopback address, then you should be able to configure your host's `resolv.conf` to route DNS requests to Consul by including "127.0.0.1" as the primary DNS server. Due to Docker's built-in DNS server, you can't point to this directly from inside your containers; Docker will issue an error message if you attempt to do this.
 
-If you are binding Consul's client interfaces to the bridge or other network, you can use the `--dns` option in your _other containers_ in order for them to use dnsmasq in the Consul container. Here's an example:
+If you are binding Consul's client interfaces to the bridge or other network, you can use the `--dns` option in your _other containers_ in order for them to use Consul's DNS server, mapped to port 53. Here's an example:
 
 ```console
 $ docker run -d --net=host -p 53:8600/tcp -p 53:8600/udp consul client -bind=<ip>
