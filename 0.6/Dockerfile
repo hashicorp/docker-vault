@@ -59,8 +59,8 @@ RUN mkdir -p /consul/data && \
 # namely agents will leave the cluster if you stop the container. This isn't
 # usually desirable for servers so we set the opposite for servers and also skip
 # leaving when servers are interrupted.
-COPY client.json /consul/config/client
-COPY server.json /consul/config/server
+COPY client.json /consul/config/client/
+COPY server.json /consul/config/server/
 
 # Expose the consul data directory as a volume since there's mutable state in there.
 VOLUME /consul/data
