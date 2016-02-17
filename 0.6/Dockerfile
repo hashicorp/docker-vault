@@ -7,8 +7,8 @@ ENV CONSUL_SHA256SUM=b0532c61fec4a4f6d130c893fd8954ec007a6ad93effbe283a39224ed23
 
 # This is the release of https://github.com/hashicorp/docker-base to pull in order
 # to provide HashiCorp-built versions of basic utilities like dumb-init and gosu.
-ENV DOCKER_BASE_VERSION=0.0.3
-ENV DOCKER_BASE_SHA256SUM=0fc15e23953728e3a53902ad6168e1b203a1d93d866a04c5d28c8f723e00ec61
+ENV DOCKER_BASE_VERSION=0.0.4
+ENV DOCKER_BASE_SHA256SUM=5262aa8379782d42f58afbda5af884b323ff0b08a042e7915eb1648891a8da00
 
 # Create a consul user and group first so the IDs get set the same way, even as
 # the rest of this may change over time.
