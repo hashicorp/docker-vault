@@ -13,9 +13,13 @@ set -e
 # the server and agent modes.
 CONSUL_DATA_DIR=/consul/data
 CONSUL_CONFIG_DIR=/consul/config
+
+# You can also set the CONSUL_LOCAL_CONFIG environemnt variable to pass some
+# Consul configuration JSON without having to bind any volumes.
 if [ -n "$CONSUL_LOCAL_CONFIG" ]; then
 	echo "$CONSUL_LOCAL_CONFIG" > "$CONSUL_CONFIG_DIR/local/env.json"
 fi
+
 if [ "$1" = 'dev' ]; then
     shift
     gosu consul \

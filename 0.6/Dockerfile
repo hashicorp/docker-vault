@@ -1,4 +1,4 @@
-FROM busybox:1.24.1-glibc
+FROM alpine:3.3
 MAINTAINER James Phillips <james@hashicorp.com> (@slackpad)
 
 # This is the release of Consul to pull in.
@@ -15,35 +15,17 @@ ENV DOCKER_BASE_SHA256SUM=0fc15e23953728e3a53902ad6168e1b203a1d93d866a04c5d28c8f
 RUN addgroup consul && \
     adduser -S -G consul consul
 
-# Copy the basetool into the image so that we can securely fetch and verify
-# downloads using SSL, which isn't supported by the wget included in BusyBox. This
-# will take a little space in this layer which we can't avoid, but we will delete
-# this later so it's not part of the final image. We also decompress the certs
-# into the location that Go looks in by default. This will allow our Go-based
-# docker-basetool to fetch releases, and it will allow Consul to use Atlas features
-# and look for newer versions of Consul via Checkpoint.
-ENV CA_CERT_DIR=/system/etc/security/cacerts
-COPY docker-basetool_*/* /tmp/
-RUN cd /tmp && \
-    sha256sum -c docker-basetool*SHA256SUMS && \
-    unzip docker-basetool*.zip && \
-    chmod +x docker-basetool && \
-    mkdir -p "${CA_CERT_DIR}" && \
-    unzip -d "${CA_CERT_DIR}" docker-basetool-certs.zip && \
-    rm docker-basetool*.zip
-
-# Pull down and verify the docker-base rootfs content.
-RUN cd /tmp && \
-    ./docker-basetool get https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_linux_amd64.zip?checksum=sha256:${DOCKER_BASE_SHA256SUM}\&archive=false base.zip && \
-    unzip -d / base.zip && \
-    rm base.zip
-
-# Pull down and verify Consul, and remove the basetool since we are done downloading.
-RUN cd /tmp && \
-    ./docker-basetool get https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip?checksum=sha256:${CONSUL_SHA256SUM}\&archive=false consul.zip && \
+# Set up certificates, our base tools, and Consul.
+RUN apk add --no-cache ca-certificates && \
+    cd /tmp && \
+    wget -O docker-base.zip https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_linux_amd64.zip && \
+    echo "${DOCKER_BASE_SHA256SUM}  docker-base.zip" | sha256sum -c && \
+    unzip -d / docker-base.zip && \
+    rm docker-base.zip && \
+    wget -O consul.zip https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip && \
+    echo "${CONSUL_SHA256SUM}  consul.zip" | sha256sum -c && \
     unzip -d /bin consul.zip && \
-    rm consul.zip && \
-    rm docker-basetool*
+    rm consul.zip
 
 # The /consul/data dir is used by Consul to store state. The agent will be started
 # with /consul/config/local as the configuration directory so you can add additional
