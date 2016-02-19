@@ -6,20 +6,19 @@ set -e
 # wouldn't do either of these functions so we'd leak zombies as well as do
 # unclean termination of all our sub-processes.
 
-# We need to find the bind address if instructed to bind to an interface
+# You can set CONSUL_BIND_INTERFACE to the name of the interface you'd like to
+# bind to and this will look up the IP and pass the proper -bind= option along
+# to Consul.
 CONSUL_BIND=
 if [ -n "$CONSUL_BIND_INTERFACE" ]; then
   CONSUL_BIND_ADDRESS=$(ip -o -4 addr list $CONSUL_BIND_INTERFACE | awk '{print $4}' | cut -d/ -f1)
   if [ -z "$CONSUL_BIND_ADDRESS" ]; then
-    echo "Network interface $CONSUL_BIND_INTERFACE has no ip address, exiting."
+    echo "Could not find IP for interface '$CONSUL_BIND_INTERFACE', exiting"
     exit 1
   fi
-  CONSUL_BIND="-bind=$CONSUL_BIND_ADDRESS"
-fi
 
-CONSUL_JOIN=
-if [ -n "$CONSUL_JOIN_ADDRESS" ]; then
-  CONSUL_JOIN="-join=$CONSUL_JOIN_ADDRESS"
+  CONSUL_BIND="-bind=$CONSUL_BIND_ADDRESS"
+  echo "==> Found address '$CONSUL_BIND_ADDRESS' for interface '$CONSUL_BIND_INTERFACE', setting bind option..."
 fi
 
 # This exposes three different modes, and allows for the execution of arbitrary
@@ -36,6 +35,9 @@ if [ -n "$CONSUL_LOCAL_CONFIG" ]; then
 	echo "$CONSUL_LOCAL_CONFIG" > "$CONSUL_CONFIG_DIR/local/env.json"
 fi
 
+# The first argument is used to decide which mode we are running in. All the
+# remaining arguments are passed along to Consul (or the executable if one of
+# the Consul modes isn't selected).
 if [ "$1" = 'dev' ]; then
     shift
     gosu consul \
@@ -52,7 +54,6 @@ elif [ "$1" = 'client' ]; then
          -config-dir="$CONSUL_CONFIG_DIR/client" \
          -config-dir="$CONSUL_CONFIG_DIR/local" \
          $CONSUL_BIND \
-         $CONSUL_JOIN \
          "$@"
 elif [ "$1" = 'server' ]; then
     shift
