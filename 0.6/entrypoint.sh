@@ -6,6 +6,22 @@ set -e
 # wouldn't do either of these functions so we'd leak zombies as well as do
 # unclean termination of all our sub-processes.
 
+# We need to find the bind address if instructed to bind to an interface
+CONSUL_BIND=
+if [ -n "$CONSUL_BIND_INTERFACE" ]; then
+  CONSUL_BIND_ADDRESS=$(ip -o -4 addr list $CONSUL_BIND_INTERFACE | awk '{print $4}' | cut -d/ -f1)
+  if [ -z "$CONSUL_BIND_ADDRESS" ]; then
+    echo "Network interface $CONSUL_BIND_INTERFACE has no ip address, exiting."
+    exit 1
+  fi
+  CONSUL_BIND="-bind=$CONSUL_BIND_ADDRESS"
+fi
+
+CONSUL_JOIN=
+if [ -n "$CONSUL_JOIN_ADDRESS" ]; then
+  CONSUL_JOIN="-join=$CONSUL_JOIN_ADDRESS"
+fi
+
 # This exposes three different modes, and allows for the execution of arbitrary
 # commands if one of these modes isn't chosen. Each of the modes will read from
 # the config directory, allowing for easy customization by placing JSON files
@@ -26,6 +42,7 @@ if [ "$1" = 'dev' ]; then
         consul agent \
          -dev \
          -config-dir="$CONSUL_CONFIG_DIR/local" \
+         $CONSUL_BIND \
          "$@"
 elif [ "$1" = 'client' ]; then
     shift
@@ -34,6 +51,8 @@ elif [ "$1" = 'client' ]; then
          -data-dir="$CONSUL_DATA_DIR" \
          -config-dir="$CONSUL_CONFIG_DIR/client" \
          -config-dir="$CONSUL_CONFIG_DIR/local" \
+         $CONSUL_BIND \
+         $CONSUL_JOIN \
          "$@"
 elif [ "$1" = 'server' ]; then
     shift
@@ -43,6 +62,7 @@ elif [ "$1" = 'server' ]; then
          -data-dir="$CONSUL_DATA_DIR" \
          -config-dir="$CONSUL_CONFIG_DIR/server" \
          -config-dir="$CONSUL_CONFIG_DIR/local" \
+         $CONSUL_BIND \
          "$@"
 else
     exec "$@"
