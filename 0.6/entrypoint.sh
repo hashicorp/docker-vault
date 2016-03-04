@@ -22,8 +22,8 @@ if [ -n "$CONSUL_BIND_INTERFACE" ]; then
 fi
 
 # You can set CONSUL_CLIENT_INTERFACE to the name of the interface you'd like to
-# bind client intefaces (HTTP, DNS, and RPC) to and this will look up the IP and pass the proper -client= option along
-# to Consul.
+# bind client intefaces (HTTP, DNS, and RPC) to and this will look up the IP and
+# pass the proper -client= option along to Consul.
 CONSUL_CLIENT=
 if [ -n "$CONSUL_CLIENT_INTERFACE" ]; then
   CONSUL_CLIENT_ADDRESS=$(ip -o -4 addr list $CONSUL_CLIENT_INTERFACE | awk '{print $4}' | cut -d/ -f1)
