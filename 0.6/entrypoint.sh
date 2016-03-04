@@ -36,7 +36,6 @@ if [ -n "$CONSUL_CLIENT_INTERFACE" ]; then
   echo "==> Found address '$CONSUL_CLIENT_ADDRESS' for interface '$CONSUL_CLIENT_INTERFACE', setting client option..."
 fi
 
-
 # This exposes three different modes, and allows for the execution of arbitrary
 # commands if one of these modes isn't chosen. Each of the modes will read from
 # the config directory, allowing for easy customization by placing JSON files
