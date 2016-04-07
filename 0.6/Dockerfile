@@ -3,12 +3,10 @@ MAINTAINER James Phillips <james@hashicorp.com> (@slackpad)
 
 # This is the release of Consul to pull in.
 ENV CONSUL_VERSION=0.6.4
-ENV CONSUL_SHA256SUM=abdf0e1856292468e2c9971420d73b805e93888e006c76324ae39416edcf0627
 
 # This is the release of https://github.com/hashicorp/docker-base to pull in order
 # to provide HashiCorp-built versions of basic utilities like dumb-init and gosu.
 ENV DOCKER_BASE_VERSION=0.0.4
-ENV DOCKER_BASE_SHA256SUM=5262aa8379782d42f58afbda5af884b323ff0b08a042e7915eb1648891a8da00
 
 # Create a consul user and group first so the IDs get set the same way, even as
 # the rest of this may change over time.
@@ -16,16 +14,27 @@ RUN addgroup consul && \
     adduser -S -G consul consul
 
 # Set up certificates, our base tools, and Consul.
-RUN apk add --no-cache ca-certificates && \
+RUN apk add --no-cache ca-certificates gnupg && \
+    gpg --recv-keys 51852D87348FFC4C && \
+    mkdir -p /tmp/build && \
+    cd /tmp/build && \
+    wget https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_linux_amd64.zip && \
+    wget https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS && \
+    wget https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS.sig && \
+    gpg --verify docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS.sig && \
+    grep ${DOCKER_BASE_VERSION}_linux_amd64.zip docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS | sha256sum -c && \
+    unzip docker-base_${DOCKER_BASE_VERSION}_linux_amd64.zip && \
+    cp bin/gosu bin/dumb-init /bin && \
+    wget https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip && \
+    wget https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS && \
+    wget https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS.sig && \
+    gpg --verify consul_${CONSUL_VERSION}_SHA256SUMS.sig && \
+    grep consul_${CONSUL_VERSION}_linux_amd64.zip consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -c && \
+    unzip -d /bin consul_${CONSUL_VERSION}_linux_amd64.zip && \
     cd /tmp && \
-    wget -O docker-base.zip https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_linux_amd64.zip && \
-    echo "${DOCKER_BASE_SHA256SUM}  docker-base.zip" | sha256sum -c && \
-    unzip -d / docker-base.zip && \
-    rm docker-base.zip && \
-    wget -O consul.zip https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip && \
-    echo "${CONSUL_SHA256SUM}  consul.zip" | sha256sum -c && \
-    unzip -d /bin consul.zip && \
-    rm consul.zip
+    rm -rf /tmp/build && \
+    apk del gnupg && \
+    rm -rf /root/.gnupg
 
 # The /consul/data dir is used by Consul to store state. The agent will be started
 # with /consul/config/local as the configuration directory so you can add additional
