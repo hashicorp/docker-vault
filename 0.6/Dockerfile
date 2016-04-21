@@ -37,10 +37,10 @@ RUN apk add --no-cache ca-certificates gnupg && \
     rm -rf /root/.gnupg
 
 # The /consul/data dir is used by Consul to store state. The agent will be started
-# with /consul/config/local as the configuration directory so you can add additional
+# with /consul/config as the configuration directory so you can add additional
 # config files in that location.
 RUN mkdir -p /consul/data && \
-    mkdir -p /consul/config/local && \
+    mkdir -p /consul/config && \
     chown -R consul:consul /consul
 
 # Expose the consul data directory as a volume since there's mutable state in there.

@@ -41,7 +41,7 @@ fi
 # config files in there if you use this image as a base, or use CONSUL_LOCAL_CONFIG
 # below.
 CONSUL_DATA_DIR=/consul/data
-CONSUL_CONFIG_DIR=/consul/config/local
+CONSUL_CONFIG_DIR=/consul/config
 
 # You can also set the CONSUL_LOCAL_CONFIG environemnt variable to pass some
 # Consul configuration JSON without having to bind any volumes.
