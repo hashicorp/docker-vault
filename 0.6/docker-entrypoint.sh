@@ -11,7 +11,7 @@ set -e
 # to Consul.
 CONSUL_BIND=
 if [ -n "$CONSUL_BIND_INTERFACE" ]; then
-  CONSUL_BIND_ADDRESS=$(ip -o -4 addr list $CONSUL_BIND_INTERFACE | awk '{print $4}' | cut -d/ -f1)
+  CONSUL_BIND_ADDRESS=$(ip -o -4 addr list $CONSUL_BIND_INTERFACE | head -n1 | awk '{print $4}' | cut -d/ -f1)
   if [ -z "$CONSUL_BIND_ADDRESS" ]; then
     echo "Could not find IP for interface '$CONSUL_BIND_INTERFACE', exiting"
     exit 1
@@ -26,7 +26,7 @@ fi
 # pass the proper -client= option along to Consul.
 CONSUL_CLIENT=
 if [ -n "$CONSUL_CLIENT_INTERFACE" ]; then
-  CONSUL_CLIENT_ADDRESS=$(ip -o -4 addr list $CONSUL_CLIENT_INTERFACE | awk '{print $4}' | cut -d/ -f1)
+  CONSUL_CLIENT_ADDRESS=$(ip -o -4 addr list $CONSUL_CLIENT_INTERFACE | head -n1 | awk '{print $4}' | cut -d/ -f1)
   if [ -z "$CONSUL_CLIENT_ADDRESS" ]; then
     echo "Could not find IP for interface '$CONSUL_CLIENT_INTERFACE', exiting"
     exit 1
@@ -49,17 +49,33 @@ if [ -n "$CONSUL_LOCAL_CONFIG" ]; then
 	echo "$CONSUL_LOCAL_CONFIG" > "$CONSUL_CONFIG_DIR/local.json"
 fi
 
-# Look for Consul running in agent mode and make sure it's running under the
-# proper user and with the special arguments determined above. Otherwise just
-# run Consul with whatever arguments were supplied, as the Consul user.
-if [ "$1" = 'agent' ]; then
-    exec gosu consul \
-         consul "$@" \
-         -data-dir="$CONSUL_DATA_DIR" \
-         -config-dir="$CONSUL_CONFIG_DIR" \
-         $CONSUL_BIND \
-         $CONSUL_CLIENT
-else
-    exec gosu consul \
-         consul "$@"
+# If the user is trying to run Consul directly with some arguments, then
+# pass them to Consul.
+if [ "${1:0:1}" = '-' ]; then
+    set -- consul "$@"
 fi
+
+# Look for Consul subcommands.
+if [ "$1" = 'agent' ]; then
+    shift
+    set -- consul agent \
+        -data-dir="$CONSUL_DATA_DIR" \
+        -config-dir="$CONSUL_CONFIG_DIR" \
+        $CONSUL_BIND \
+        $CONSUL_CLIENT \
+        "$@"
+elif [ "$1" = 'version' ]; then
+    # This needs a special case because there's no help output.
+    set -- consul "$@"
+elif consul --help "$1" 2>&1 | grep -q "consul $1"; then
+    # We can't use the return code to check for the existence of a subcommand, so
+    # we have to use grep to look for a pattern in the help output.
+    set -- consul "$@"
+fi
+
+# If we are running Consul, make sure it executes as the proper user.
+if [ "$1" = 'consul' ]; then
+    set -- gosu consul "$@"
+fi
+
+exec "$@"
