@@ -72,8 +72,8 @@ EXPOSE 8400 8500 8600 8600/udp
 # Consul doesn't need root privileges so we run it as the consul user from the
 # entry point script. The entry point script also uses dumb-init as the top-level
 # process to reap any zombie processes created by Consul sub-processes.
-COPY entrypoint.sh /
-ENTRYPOINT ["/entrypoint.sh"]
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 # By default you'll get a single-node development server that stores everything
 # in RAM, exposes a web UI, and bootstraps itself. Don't use this configuration
