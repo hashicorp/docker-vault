@@ -15,20 +15,20 @@ RUN addgroup consul && \
 
 # Set up certificates, our base tools, and Consul.
 RUN apk add --no-cache ca-certificates gnupg && \
-    gpg --recv-keys 51852D87348FFC4C && \
+    gpg --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C && \
     mkdir -p /tmp/build && \
     cd /tmp/build && \
     wget https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_linux_amd64.zip && \
     wget https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS && \
     wget https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS.sig && \
-    gpg --verify docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS.sig && \
+    gpg --batch --verify docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS.sig docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS && \
     grep ${DOCKER_BASE_VERSION}_linux_amd64.zip docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS | sha256sum -c && \
     unzip docker-base_${DOCKER_BASE_VERSION}_linux_amd64.zip && \
     cp bin/gosu bin/dumb-init /bin && \
     wget https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip && \
     wget https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS && \
     wget https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS.sig && \
-    gpg --verify consul_${CONSUL_VERSION}_SHA256SUMS.sig && \
+    gpg --batch --verify consul_${CONSUL_VERSION}_SHA256SUMS.sig consul_${CONSUL_VERSION}_SHA256SUMS && \
     grep consul_${CONSUL_VERSION}_linux_amd64.zip consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -c && \
     unzip -d /bin consul_${CONSUL_VERSION}_linux_amd64.zip && \
     cd /tmp && \
