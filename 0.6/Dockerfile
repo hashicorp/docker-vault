@@ -38,20 +38,10 @@ RUN apk add --no-cache ca-certificates gnupg && \
 
 # The /consul/data dir is used by Consul to store state. The agent will be started
 # with /consul/config/local as the configuration directory so you can add additional
-# config files in that location. There are client and server-specific locations so
-# we can supply some default configs via this base image as well.
+# config files in that location.
 RUN mkdir -p /consul/data && \
     mkdir -p /consul/config/local && \
-    mkdir -p /consul/config/client && \
-    mkdir -p /consul/config/server && \
     chown -R consul:consul /consul
-
-# Client mode has some default configuration that's good for running in containers,
-# namely agents will leave the cluster if you stop the container. This isn't
-# usually desirable for servers so we set the opposite for servers and also skip
-# leaving when servers are interrupted.
-COPY client.json /consul/config/client/
-COPY server.json /consul/config/server/
 
 # Expose the consul data directory as a volume since there's mutable state in there.
 VOLUME /consul/data
@@ -78,4 +68,4 @@ ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 # By default you'll get a single-node development server that stores everything
 # in RAM, exposes a web UI, and bootstraps itself. Don't use this configuration
 # for production.
-CMD ["dev"]
+CMD ["agent", "-dev"]
