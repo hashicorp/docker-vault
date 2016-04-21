@@ -15,20 +15,20 @@ RUN addgroup consul && \
 
 # Set up certificates, our base tools, and Consul.
 RUN apk add --no-cache ca-certificates gnupg && \
-    gpg --recv-keys 51852D87348FFC4C && \
+    gpg --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C && \
     mkdir -p /tmp/build && \
     cd /tmp/build && \
     wget https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_linux_amd64.zip && \
     wget https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS && \
     wget https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS.sig && \
-    gpg --verify docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS.sig && \
+    gpg --batch --verify docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS.sig docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS && \
     grep ${DOCKER_BASE_VERSION}_linux_amd64.zip docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS | sha256sum -c && \
     unzip docker-base_${DOCKER_BASE_VERSION}_linux_amd64.zip && \
     cp bin/gosu bin/dumb-init /bin && \
     wget https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip && \
     wget https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS && \
     wget https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS.sig && \
-    gpg --verify consul_${CONSUL_VERSION}_SHA256SUMS.sig && \
+    gpg --batch --verify consul_${CONSUL_VERSION}_SHA256SUMS.sig consul_${CONSUL_VERSION}_SHA256SUMS && \
     grep consul_${CONSUL_VERSION}_linux_amd64.zip consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -c && \
     unzip -d /bin consul_${CONSUL_VERSION}_linux_amd64.zip && \
     cd /tmp && \
@@ -37,21 +37,11 @@ RUN apk add --no-cache ca-certificates gnupg && \
     rm -rf /root/.gnupg
 
 # The /consul/data dir is used by Consul to store state. The agent will be started
-# with /consul/config/local as the configuration directory so you can add additional
-# config files in that location. There are client and server-specific locations so
-# we can supply some default configs via this base image as well.
+# with /consul/config as the configuration directory so you can add additional
+# config files in that location.
 RUN mkdir -p /consul/data && \
-    mkdir -p /consul/config/local && \
-    mkdir -p /consul/config/client && \
-    mkdir -p /consul/config/server && \
+    mkdir -p /consul/config && \
     chown -R consul:consul /consul
-
-# Client mode has some default configuration that's good for running in containers,
-# namely agents will leave the cluster if you stop the container. This isn't
-# usually desirable for servers so we set the opposite for servers and also skip
-# leaving when servers are interrupted.
-COPY client.json /consul/config/client/
-COPY server.json /consul/config/server/
 
 # Expose the consul data directory as a volume since there's mutable state in there.
 VOLUME /consul/data
@@ -72,10 +62,10 @@ EXPOSE 8400 8500 8600 8600/udp
 # Consul doesn't need root privileges so we run it as the consul user from the
 # entry point script. The entry point script also uses dumb-init as the top-level
 # process to reap any zombie processes created by Consul sub-processes.
-COPY entrypoint.sh /
-ENTRYPOINT ["/entrypoint.sh"]
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 # By default you'll get a single-node development server that stores everything
 # in RAM, exposes a web UI, and bootstraps itself. Don't use this configuration
 # for production.
-CMD ["dev"]
+CMD ["agent", "-dev"]

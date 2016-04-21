@@ -36,53 +36,30 @@ if [ -n "$CONSUL_CLIENT_INTERFACE" ]; then
   echo "==> Found address '$CONSUL_CLIENT_ADDRESS' for interface '$CONSUL_CLIENT_INTERFACE', setting client option..."
 fi
 
-# This exposes three different modes, and allows for the execution of arbitrary
-# commands if one of these modes isn't chosen. Each of the modes will read from
-# the config directory, allowing for easy customization by placing JSON files
-# there. Note that there's a common config location, as well as one specifc to
-# the server and agent modes.
+# CONSUL_DATA_DIR is exposed as a volume for possible persistent storage. The
+# CONSUL_CONFIG_DIR isn't exposed as a volume but you can compose additional
+# config files in there if you use this image as a base, or use CONSUL_LOCAL_CONFIG
+# below.
 CONSUL_DATA_DIR=/consul/data
 CONSUL_CONFIG_DIR=/consul/config
 
 # You can also set the CONSUL_LOCAL_CONFIG environemnt variable to pass some
 # Consul configuration JSON without having to bind any volumes.
 if [ -n "$CONSUL_LOCAL_CONFIG" ]; then
-	echo "$CONSUL_LOCAL_CONFIG" > "$CONSUL_CONFIG_DIR/local/env.json"
+	echo "$CONSUL_LOCAL_CONFIG" > "$CONSUL_CONFIG_DIR/local.json"
 fi
 
-# The first argument is used to decide which mode we are running in. All the
-# remaining arguments are passed along to Consul (or the executable if one of
-# the Consul modes isn't selected).
-if [ "$1" = 'dev' ]; then
-    shift
-    gosu consul \
-        consul agent \
-         -dev \
-         -config-dir="$CONSUL_CONFIG_DIR/local" \
-         $CONSUL_BIND \
-         $CONSUL_CLIENT \
-         "$@"
-elif [ "$1" = 'client' ]; then
-    shift
-    gosu consul \
-        consul agent \
+# Look for Consul running in agent mode and make sure it's running under the
+# proper user and with the special arguments determined above. Otherwise just
+# run Consul with whatever arguments were supplied, as the Consul user.
+if [ "$1" = 'agent' ]; then
+    exec gosu consul \
+         consul "$@" \
          -data-dir="$CONSUL_DATA_DIR" \
-         -config-dir="$CONSUL_CONFIG_DIR/client" \
-         -config-dir="$CONSUL_CONFIG_DIR/local" \
+         -config-dir="$CONSUL_CONFIG_DIR" \
          $CONSUL_BIND \
-         $CONSUL_CLIENT \
-         "$@"
-elif [ "$1" = 'server' ]; then
-    shift
-    gosu consul \
-        consul agent \
-         -server \
-         -data-dir="$CONSUL_DATA_DIR" \
-         -config-dir="$CONSUL_CONFIG_DIR/server" \
-         -config-dir="$CONSUL_CONFIG_DIR/local" \
-         $CONSUL_BIND \
-         $CONSUL_CLIENT \
-         "$@"
+         $CONSUL_CLIENT
 else
-    exec "$@"
+    exec gosu consul \
+         consul "$@"
 fi
