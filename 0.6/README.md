@@ -1,5 +1,8 @@
 # Consul Official Image Build
 
+The version of this hosted on [HashiCorp's Docker Hub for Consul](https://hub.docker.com/r/hashicorp/consul/)
+is built from the same source as the [Consul Official Image](https://hub.docker.com/_/consul/).
+
 There are several pieces that are used to build this image:
 
 * We start with an Alpine base image and add CA certificates in order to reach
