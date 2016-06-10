@@ -14,7 +14,7 @@ RUN addgroup consul && \
     adduser -S -G consul consul
 
 # Set up certificates, our base tools, and Consul.
-RUN apk add --no-cache ca-certificates gnupg && \
+RUN apk add --no-cache ca-certificates gnupg openssl && \
     gpg --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C && \
     mkdir -p /tmp/build && \
     cd /tmp/build && \
@@ -33,7 +33,7 @@ RUN apk add --no-cache ca-certificates gnupg && \
     unzip -d /bin consul_${CONSUL_VERSION}_linux_amd64.zip && \
     cd /tmp && \
     rm -rf /tmp/build && \
-    apk del gnupg && \
+    apk del gnupg openssl && \
     rm -rf /root/.gnupg
 
 # The /consul/data dir is used by Consul to store state. The agent will be started
