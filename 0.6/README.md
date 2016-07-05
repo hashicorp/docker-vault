@@ -1,7 +1,7 @@
-# Consul Official Image Build
+# Vault Official Image Build
 
-The version of this hosted on [HashiCorp's Docker Hub for Consul](https://hub.docker.com/r/hashicorp/consul/)
-is built from the same source as the [Consul Official Image](https://hub.docker.com/_/consul/).
+The version of this hosted on [HashiCorp's Docker Hub for Vault](https://hub.docker.com/r/hashicorp/vault/)
+is built from the same source as the [Vault Official Image](https://hub.docker.com/_/vault/).
 
 There are several pieces that are used to build this image:
 
@@ -11,5 +11,5 @@ There are several pieces that are used to build this image:
 * Official HashiCorp builds of some base utilities are then included in the
   image by pulling a release of docker-base. This includes dumb-init and gosu.
   See https://github.com/hashicorp/docker-base for more details.
-* Finally a specific Consul build is fetched and the rest of the Consul-specific
+* Finally a specific Vault build is fetched and the rest of the Vault-specific
   configuration happens according to the Dockerfile.
