@@ -6,11 +6,9 @@ set -e
 # wouldn't do either of these functions so we'd leak zombies as well as do
 # unclean termination of all our sub-processes.
 
-# VAULT_LOGS_DIR is exposed as a volume for possible persistent storage. The
 # VAULT_CONFIG_DIR isn't exposed as a volume but you can compose additional
 # config files in there if you use this image as a base, or use
 # VAULT_LOCAL_CONFIG below.
-VAULT_LOGS_DIR=/vault/logs
 VAULT_CONFIG_DIR=/vault/config
 
 # You can also set the VAULT_LOCAL_CONFIG environemnt variable to pass some

@@ -31,16 +31,22 @@ RUN apk add --no-cache ca-certificates gnupg openssl && \
     apk del gnupg openssl && \
     rm -rf /root/.gnupg
 
-# The /vault/logs is made available to use as a location to store audit logs,
-# if desired. The server will be started with /vault/config as the
-# configuration directory so you can add additional config files in that
+# /vault/logs is made available to use as a location to store audit logs, if
+# desired; /vault/file is made available to use as a location with the file
+# storage backend, if desired; the server will be started with /vault/config as
+# the configuration directory so you can add additional config files in that
 # location.
 RUN mkdir -p /vault/logs && \
+    mkdir -p /vault/file && \
     mkdir -p /vault/config
 
 # Expose the logs directory as a volume since there's potentially long-running
 # state in there
 VOLUME /vault/logs
+
+# Expose the file directory as a volume since there's potentially long-running
+# state in there
+VOLUME /vault/file
 
 # 8200/tcp is the primary interface that applications use to interact with
 # Vault.
