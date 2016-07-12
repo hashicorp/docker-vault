@@ -11,7 +11,7 @@ set -e
 # VAULT_LOCAL_CONFIG below.
 VAULT_CONFIG_DIR=/vault/config
 
-# You can also set the VAULT_LOCAL_CONFIG environemnt variable to pass some
+# You can also set the VAULT_LOCAL_CONFIG environment variable to pass some
 # Vault configuration JSON without having to bind any volumes.
 #
 # NOTE: The 'if' directive is commented due to a bug in Vault that causes a
