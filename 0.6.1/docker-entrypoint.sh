@@ -23,14 +23,34 @@ if [ "${1:0:1}" = '-' ]; then
     set -- vault "$@"
 fi
 
+# Vault <0.6.2 errors out if dev-listen-address is specified while not in
+# dev mode; so the fix for docker-vault#2 (setting default listen address)
+# makes it impossible to run in non-dev mode without specifying your own
+# entrypoint, hence this check. This can be removed for 0.6.2+.
+containsDev () {
+    local e
+    for e in "${@:1}"; do
+        [[ "$e" == "dev" ]] && return 0
+    done
+    return 1
+}
+
 # Look for Vault subcommands.
 if [ "$1" = 'server' ]; then
     shift
-    set -- vault server \
-        -config="$VAULT_CONFIG_DIR" \
-        -dev-root-token-id="$VAULT_DEV_ROOT_TOKEN_ID" \
-        -dev-listen-address="${VAULT_DEV_LISTEN_ADDRESS:-"0.0.0.0:8200"}" \
-        "$@"
+    # See comment for containsDev
+    if containsDev $@; then
+        set -- vault server \
+            -config="$VAULT_CONFIG_DIR" \
+            -dev-root-token-id="$VAULT_DEV_ROOT_TOKEN_ID" \
+            -dev-listen-address="${VAULT_DEV_LISTEN_ADDRESS:-"0.0.0.0:8200"}" \
+            "$@"
+    else
+        set -- vault server \
+            -config="$VAULT_CONFIG_DIR" \
+            -dev-root-token-id="$VAULT_DEV_ROOT_TOKEN_ID" \
+            "$@"
+    fi
 elif [ "$1" = 'version' ]; then
     # This needs a special case because there's no help output.
     set -- vault "$@"
