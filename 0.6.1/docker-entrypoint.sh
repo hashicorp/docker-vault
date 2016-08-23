@@ -31,6 +31,7 @@ containsDev () {
     local e
     for e in "${@:1}"; do
         [[ "$e" == "dev" ]] && return 0
+        [[ "$e" == "-dev" ]] && return 0
     done
     return 1
 }
