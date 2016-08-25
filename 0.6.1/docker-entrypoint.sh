@@ -61,4 +61,9 @@ elif vault --help "$1" 2>&1 | grep -q "vault $1"; then
     set -- vault "$@"
 fi
 
+# If we are running Vault, make sure it executes as the proper user.
+if [ "$1" = 'vault' ]; then
+        set -- gosu vault "$@"
+    fi
+
 exec "$@"

@@ -8,8 +8,13 @@ ENV VAULT_VERSION=0.6.1
 # to provide HashiCorp-built versions of basic utilities like dumb-init and gosu.
 ENV DOCKER_BASE_VERSION=0.0.4
 
+# Create a vault user and group first so the IDs get set the same way,
+# even as the rest of this may change over time.
+RUN addgroup vault && \
+adduser -S -G vault vault
+
 # Set up certificates, our base tools, and Vault.
-RUN apk add --no-cache ca-certificates gnupg openssl && \
+RUN apk add --no-cache ca-certificates gnupg openssl libcap && \
     gpg --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C && \
     mkdir -p /tmp/build && \
     cd /tmp/build && \
@@ -26,6 +31,7 @@ RUN apk add --no-cache ca-certificates gnupg openssl && \
     gpg --batch --verify vault_${VAULT_VERSION}_SHA256SUMS.sig vault_${VAULT_VERSION}_SHA256SUMS && \
     grep vault_${VAULT_VERSION}_linux_amd64.zip vault_${VAULT_VERSION}_SHA256SUMS | sha256sum -c && \
     unzip -d /bin vault_${VAULT_VERSION}_linux_amd64.zip && \
+    setcap cap_ipc_lock=+ep $(readlink -f $(which vault)) && \
     cd /tmp && \
     rm -rf /tmp/build && \
     apk del gnupg openssl && \
@@ -38,7 +44,8 @@ RUN apk add --no-cache ca-certificates gnupg openssl && \
 # location.
 RUN mkdir -p /vault/logs && \
     mkdir -p /vault/file && \
-    mkdir -p /vault/config
+    mkdir -p /vault/config && \
+    chown -R vault:vault /vault
 
 # Expose the logs directory as a volume since there's potentially long-running
 # state in there
