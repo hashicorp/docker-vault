@@ -60,6 +60,10 @@ EXPOSE 8200
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 ENTRYPOINT ["docker-entrypoint.sh"]
 
+# This is really just here as a noop to force a rebuild of the file due to
+# caching issues with the binary.
+STOPSIGNAL SIGINT
+
 # By default you'll get a single-node development server that stores everything
 # in RAM and bootstraps itself. Don't use this configuration for production.
 CMD ["server", "-dev"]
