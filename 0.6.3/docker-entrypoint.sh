@@ -14,7 +14,7 @@ VAULT_CONFIG_DIR=/vault/config
 # You can also set the VAULT_LOCAL_CONFIG environment variable to pass some
 # Vault configuration JSON without having to bind any volumes.
 if [ -n "$VAULT_LOCAL_CONFIG" ]; then
-	echo "$VAULT_LOCAL_CONFIG" > "$VAULT_CONFIG_DIR/local.json"
+    echo "$VAULT_LOCAL_CONFIG" > "$VAULT_CONFIG_DIR/local.json"
 fi
 
 # If the user is trying to run Vault directly with some arguments, then
@@ -42,8 +42,8 @@ fi
 
 # If we are running Vault, make sure it executes as the proper user.
 if [ "$1" = 'vault' ]; then
-	# vault now runs as a user: make sure to chown bind mounted /vault data.
-	chown -R vault:vault /vault
+    # vault now runs as a user: make sure to chown bind mounted /vault data.
+    chown -R vault:vault /vault
 
     set -- gosu vault "$@"
 fi
