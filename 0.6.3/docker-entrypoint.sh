@@ -69,4 +69,7 @@ if [ "$1" = 'vault' ]; then
     set -- gosu vault "$@"
 fi
 
+# Allow mlock to avoid swapping Vault memory to disk
+setcap cap_ipc_lock=+ep $(readlink -f $(which vault))
+
 exec "$@"

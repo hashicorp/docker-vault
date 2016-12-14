@@ -31,7 +31,6 @@ RUN apk add --no-cache ca-certificates gnupg openssl libcap && \
     gpg --batch --verify vault_${VAULT_VERSION}_SHA256SUMS.sig vault_${VAULT_VERSION}_SHA256SUMS && \
     grep vault_${VAULT_VERSION}_linux_amd64.zip vault_${VAULT_VERSION}_SHA256SUMS | sha256sum -c && \
     unzip -d /bin vault_${VAULT_VERSION}_linux_amd64.zip && \
-    setcap cap_ipc_lock=+ep $(readlink -f $(which vault)) && \
     cd /tmp && \
     rm -rf /tmp/build && \
     apk del gnupg openssl && \
