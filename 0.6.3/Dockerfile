@@ -43,7 +43,8 @@ RUN apk add --no-cache ca-certificates gnupg openssl libcap && \
 # location.
 RUN mkdir -p /vault/logs && \
     mkdir -p /vault/file && \
-    mkdir -p /vault/config
+    mkdir -p /vault/config && \
+    chown -R vault:vault /vault
 
 # Expose the logs directory as a volume since there's potentially long-running
 # state in there

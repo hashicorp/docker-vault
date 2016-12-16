@@ -63,8 +63,10 @@ fi
 
 # If we are running Vault, make sure it executes as the proper user.
 if [ "$1" = 'vault' ]; then
-    # vault now runs as a user: make sure to chown bind mounted /vault data.
-    chown -R vault:vault /vault
+    # If the config dirs are bind mounted then chown them
+    if [ "$(stat -c %u /vault/config)" != "$(id -u vault)" ]; then
+        chown -R vault:vault /vault/config
+    fi
 
     set -- gosu vault "$@"
 fi
