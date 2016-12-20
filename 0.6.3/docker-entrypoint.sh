@@ -63,21 +63,31 @@ fi
 
 # If we are running Vault, make sure it executes as the proper user.
 if [ "$1" = 'vault' ]; then
-    # If the config dirs are bind mounted then chown them
+    # If the config dir is bind mounted then chown it
     if [ "$(stat -c %u /vault/config)" != "$(id -u vault)" ]; then
         chown -R vault:vault /vault/config
     fi
 
+    # If the logs dir is bind mounted then chown it
+    if [ "$(stat -c %u /vault/logs)" != "$(id -u vault)" ]; then
+        chown -R vault:vault /vault/logs
+    fi
+
+    # If the file dir is bind mounted then chown it
+    if [ "$(stat -c %u /vault/file)" != "$(id -u vault)" ]; then
+        chown -R vault:vault /vault/file
+    fi
+
+    # Allow mlock to avoid swapping Vault memory to disk
+    setcap cap_ipc_lock=+ep $(readlink -f $(which vault))
+
+    # In the case vault has been started in a container without IPC_LOCK privileges
+    if ! vault -version 2> /dev/null; then
+        >&2 echo "Couldn't start vault with IPC_LOCK. Disabling IPC_LOCK, please use --privileged or --cap-add IPC_LOCK"
+        setcap -r $(readlink -f $(which vault))
+    fi
+
     set -- gosu vault "$@"
-fi
-
-# Allow mlock to avoid swapping Vault memory to disk
-setcap cap_ipc_lock=+ep $(readlink -f $(which vault))
-
-# In the case vault has been started in a container without IPC_LOCK privileges
-if ! vault -version 2> /dev/null; then
-    2> echo "Couldn't start vault with IPC_LOCK. Disabling IPC_LOCK, please use --privileged or --cap-add IPC_LOCK"
-    setcap -r $(readlink -f $(which vault))
 fi
 
 exec "$@"
