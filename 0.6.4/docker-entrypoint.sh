@@ -65,7 +65,7 @@ fi
 if [ "$1" = 'vault' ]; then
     # If the config dir is bind mounted then chown it
     if [ "$(stat -c %u /vault/config)" != "$(id -u vault)" ]; then
-        chown -R vault:vault /vault/config
+        chown -R vault:vault /vault/config || echo "Could not chown /vault/config do we not have root access to the filesystem?"
     fi
 
     # If the logs dir is bind mounted then chown it
