@@ -68,4 +68,4 @@ ENTRYPOINT ["docker-entrypoint.sh"]
 
 # By default you'll get a single-node development server that stores everything
 # in RAM and bootstraps itself. Don't use this configuration for production.
-CMD ["server", "-dev"]
+CMD ["server"]
