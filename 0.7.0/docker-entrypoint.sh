@@ -12,10 +12,12 @@ set -e
 # VAULT_*_ADDR is also set, the resulting URI will combine the protocol and port
 # number with the IP of the named interface.
 get_addr () {
-    IF_NAME=$1
-    ip addr show dev $IF_NAME | awk -v uri=$2 '/\s*inet\s/ { \
+    local if_name=$1
+    local uri_template=$2
+    ip addr show dev $if_name | awk -v uri=$uri_template '/\s*inet\s/ { \
       ip=gensub(/(.+)\/.+/, "\\1", "g", $2); \
-      print gensub(/^(.+:\/\/).+(:.+)$/, "\\1" ip "\\2", "g", uri)}'
+      print gensub(/^(.+:\/\/).+(:.+)$/, "\\1" ip "\\2", "g", uri); \
+      exit}'
 }
 
 if [ -n "$VAULT_REDIRECT_INTERFACE" ]; then
