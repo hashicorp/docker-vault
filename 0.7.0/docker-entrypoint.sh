@@ -87,7 +87,7 @@ if [ "$1" = 'vault' ]; then
         # In the case vault has been started in a container without IPC_LOCK privileges
         if ! vault -version 1>/dev/null 2>/dev/null; then
             >&2 echo "Couldn't start vault with IPC_LOCK. Disabling IPC_LOCK, please use --privileged or --cap-add IPC_LOCK"
-            setcap -r $(readlink -f $(which vault))
+            setcap cap_ipc_lock=-ep $(readlink -f $(which vault))
         fi
     fi
 
