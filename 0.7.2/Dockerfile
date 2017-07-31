@@ -1,9 +1,8 @@
 FROM alpine:3.6
-MAINTAINER Samual Laakso <slaakso@hearst.com> 
-
+MAINTAINER Jeff Mitchell <jeff@hashicorp.com> (@jefferai)
 
 # This is the release of Vault to pull in.
-ENV VAULT_VERSION=0.7.3
+ENV VAULT_VERSION=0.7.2
 
 # This is the release of https://github.com/hashicorp/docker-base to pull in order
 # to provide HashiCorp-built versions of basic utilities like dumb-init and gosu.
@@ -69,4 +68,4 @@ ENTRYPOINT ["docker-entrypoint.sh"]
 
 # By default you'll get a single-node development server that stores everything
 # in RAM and bootstraps itself. Don't use this configuration for production.
-CMD ["server"]
+CMD ["server", "-dev"]
