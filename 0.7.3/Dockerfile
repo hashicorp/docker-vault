@@ -1,5 +1,6 @@
 FROM alpine:3.6
-MAINTAINER Jeff Mitchell <jeff@hashicorp.com> (@jefferai)
+MAINTAINER Samual Laakso <slaakso@hearst.com> 
+
 
 # This is the release of Vault to pull in.
 ENV VAULT_VERSION=0.7.3
@@ -68,4 +69,4 @@ ENTRYPOINT ["docker-entrypoint.sh"]
 
 # By default you'll get a single-node development server that stores everything
 # in RAM and bootstraps itself. Don't use this configuration for production.
-CMD ["server", "-dev"]
+CMD ["server"]
