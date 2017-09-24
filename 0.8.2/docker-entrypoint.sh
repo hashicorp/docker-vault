@@ -65,10 +65,8 @@ fi
 
 # If we are running Vault, make sure it executes as the proper user.
 if [ "$1" = 'vault' ]; then
-    # If the config dir is bind mounted then chown it
-    if [ "$(stat -c %u /vault/config)" != "$(id -u vault)" ]; then
-        chown -R vault:vault /vault/config || echo "Could not chown /vault/config (may not have appropriate permissions)"
-    fi
+    # If the config dir is bind mounted confirm it's contents are readable
+    su -m vault -c 'find /vault/config >/dev/null 2>&1 || echo "There are files in /vault/config that are not readable by user vault"'
 
     # If the logs dir is bind mounted then chown it
     if [ "$(stat -c %u /vault/logs)" != "$(id -u vault)" ]; then
