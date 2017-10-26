@@ -14,7 +14,7 @@ RUN addgroup vault && \
     adduser -S -G vault vault
 
 # Set up certificates, our base tools, and Vault.
-RUN apk add --no-cache ca-certificates gnupg openssl libcap && \
+RUN apk add --no-cache ca-certificates gnupg openssl libcap run-parts && \
     gpg --keyserver pgp.mit.edu --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C && \
     mkdir -p /tmp/build && \
     cd /tmp/build && \
@@ -64,6 +64,7 @@ EXPOSE 8200
 # For production derivatives of this container, you shoud add the IPC_LOCK
 # capability so that Vault can mlock memory.
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+ONBUILD COPY /docker-entrypoint.d/* /docker-entrypoint.d/
 ENTRYPOINT ["docker-entrypoint.sh"]
 
 # By default you'll get a single-node development server that stores everything

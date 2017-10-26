@@ -94,4 +94,9 @@ if [ "$1" = 'vault' ]; then
     set -- gosu vault "$@"
 fi
 
+DIR=/docker-entrypoint.d
+if [ -d "$DIR" ]; then
+    /usr/bin/run-parts --verbose "$DIR"
+fi
+
 exec "$@"
