@@ -2,7 +2,7 @@ FROM alpine:3.6
 MAINTAINER Jeff Mitchell <jeff@hashicorp.com> (@jefferai)
 
 # This is the release of Vault to pull in.
-ENV VAULT_VERSION=0.8.3
+ENV VAULT_VERSION=0.9.0
 
 # This is the release of https://github.com/hashicorp/docker-base to pull in order
 # to provide HashiCorp-built versions of basic utilities like dumb-init and gosu.
