@@ -91,7 +91,9 @@ if [ "$1" = 'vault' ]; then
         fi
     fi
 
-    set -- su-exec vault "$@"
+    if [ -z "$DISABLE_SU" ]; then
+      set -- su-exec vault "$@"
+    fi
 fi
 
 exec "$@"
