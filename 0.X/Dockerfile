@@ -47,7 +47,7 @@ VOLUME /vault/file
 # Vault.
 EXPOSE 8200
 
-# The entry point script uses tini as the top-level process to reap any
+# The entry point script uses dumb-init as the top-level process to reap any
 # zombie processes created by Vault sub-processes.
 #
 # For production derivatives of this container, you shoud add the IPC_LOCK
