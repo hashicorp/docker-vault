@@ -4,27 +4,16 @@ MAINTAINER Jeff Mitchell <jeff@hashicorp.com> (@jefferai)
 # This is the release of Vault to pull in.
 ENV VAULT_VERSION=0.9.0
 
-# This is the release of https://github.com/hashicorp/docker-base to pull in order
-# to provide HashiCorp-built versions of basic utilities like dumb-init and gosu.
-ENV DOCKER_BASE_VERSION=0.0.4
-
 # Create a vault user and group first so the IDs get set the same way,
 # even as the rest of this may change over time.
 RUN addgroup vault && \
     adduser -S -G vault vault
 
 # Set up certificates, our base tools, and Vault.
-RUN apk add --no-cache ca-certificates gnupg openssl libcap && \
+RUN apk add --no-cache ca-certificates gnupg openssl libcap su-exec dumb-init && \
     gpg --keyserver pgp.mit.edu --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C && \
     mkdir -p /tmp/build && \
     cd /tmp/build && \
-    wget https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_linux_amd64.zip && \
-    wget https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS && \
-    wget https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS.sig && \
-    gpg --batch --verify docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS.sig docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS && \
-    grep ${DOCKER_BASE_VERSION}_linux_amd64.zip docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS | sha256sum -c && \
-    unzip docker-base_${DOCKER_BASE_VERSION}_linux_amd64.zip && \
-    cp bin/gosu bin/dumb-init /bin && \
     wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip && \
     wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_SHA256SUMS && \
     wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_SHA256SUMS.sig && \
