@@ -2,7 +2,7 @@ FROM alpine:3.6
 MAINTAINER Jeff Mitchell <jeff@hashicorp.com> (@jefferai)
 
 # This is the release of Vault to pull in.
-ENV VAULT_VERSION=0.9.0
+ENV VAULT_VERSION=0.9.1
 
 # Create a vault user and group first so the IDs get set the same way,
 # even as the rest of this may change over time.
