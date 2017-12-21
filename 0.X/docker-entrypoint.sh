@@ -91,7 +91,7 @@ if [ "$1" = 'vault' ]; then
         fi
     fi
 
-    if [ -z "$DISABLE_SU" ]; then
+    if [ "$(id -u)" = '0' ]; then
       set -- su-exec vault "$@"
     fi
 fi
