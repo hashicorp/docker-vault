@@ -1,13 +1,9 @@
+# Build image section
 FROM golang:1.9-alpine3.7 AS builder
 MAINTAINER Jeff Mitchell <jeff@hashicorp.com> (@jefferai)
 
 # This is the release of Vault to pull in.
 ENV VAULT_VERSION=master
-
-# Create a vault user and group first so the IDs get set the same way,
-# even as the rest of this may change over time.
-RUN addgroup vault && \
-    adduser -S -G vault vault
 
 # Set up certificates, our base tools, and Vault.
 RUN apk add --no-cache ca-certificates git make bash && \
@@ -18,14 +14,19 @@ RUN apk add --no-cache ca-certificates git make bash && \
     make bootstrap && \
     make dev
 
+# Main image section
+FROM alpine:3.7
+
+# Create a vault user and group first so the IDs get set the same way,
+# even as the rest of this may change over time.
+RUN addgroup vault && \
+    adduser -S -G vault vault
+
 # /vault/logs is made available to use as a location to store audit logs, if
 # desired; /vault/file is made available to use as a location with the file
 # storage backend, if desired; the server will be started with /vault/config as
 # the configuration directory so you can add additional config files in that
 # location.
-FROM alpine:3.7
-RUN addgroup vault && \
-    adduser -S -G vault vault
 RUN apk add --no-cache ca-certificates libcap su-exec dumb-init && \
     mkdir -p /vault/logs && \
     mkdir -p /vault/file && \
