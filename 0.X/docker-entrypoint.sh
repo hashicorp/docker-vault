@@ -96,4 +96,9 @@ if [ "$1" = 'vault' ]; then
     fi
 fi
 
+DIR=/docker-entrypoint.d
+if [ -d "$DIR" ]; then
+    /usr/bin/run-parts --verbose "$DIR"
+fi
+
 exec "$@"
