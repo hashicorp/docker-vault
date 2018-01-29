@@ -11,7 +11,7 @@ RUN addgroup vault && \
 
 # Set up certificates, our base tools, and Vault.
 RUN apk add --no-cache ca-certificates gnupg openssl libcap su-exec dumb-init && \
-    gpg --keyserver pgp.mit.edu --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C && \
+    gpg --keyserver hkp://pgp.mit.edu:80 --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C && \
     mkdir -p /tmp/build && \
     cd /tmp/build && \
     wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip && \
