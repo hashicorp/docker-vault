@@ -1,7 +1,7 @@
 FROM alpine:3.7
 
 # This is the release of Vault to pull in.
-ENV VAULT_VERSION=0.9.4
+ENV VAULT_VERSION=0.9.5
 
 # Create a vault user and group first so the IDs get set the same way,
 # even as the rest of this may change over time.
