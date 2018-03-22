@@ -30,6 +30,8 @@ RUN set -eux; \
     unzip -d /bin vault_${VAULT_VERSION}_linux_${ARCH}.zip && \
     cd /tmp && \
     rm -rf /tmp/build && \
+    gpgconf --kill dirmngr && \
+    gpgconf --kill gpg-agent && \
     apk del gnupg openssl && \
     rm -rf /root/.gnupg
 
