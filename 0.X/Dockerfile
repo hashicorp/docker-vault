@@ -19,7 +19,17 @@ RUN set -eux; \
         x86) ARCH='386' ;; \ 
         *) echo >&2 "error: unsupported architecture: $apkArch"; exit 1 ;; \
     esac && \
-    gpg --keyserver hkp://pgp.mit.edu:80 --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C && \
+    VAULT_GPGKEY=91A6E7F85D05C65630BEF18951852D87348FFC4C; \
+    found=''; \
+    for server in \
+        hkp://p80.pool.sks-keyservers.net:80 \
+        hkp://keyserver.ubuntu.com:80 \
+        hkp://pgp.mit.edu:80 \
+    ; do \
+        echo "Fetching GPG key $VAULT_GPGKEY from $server"; \
+        gpg --keyserver "$server" --recv-keys "$VAULT_GPGKEY" && found=yes && break; \
+    done; \
+    test -z "$found" && echo >&2 "error: failed to fetch GPG key $VAULT_GPGKEY" && exit 1; \
     mkdir -p /tmp/build && \
     cd /tmp/build && \
     wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_${ARCH}.zip && \
