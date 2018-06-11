@@ -65,20 +65,9 @@ fi
 
 # If we are running Vault, make sure it executes as the proper user.
 if [ "$1" = 'vault' ]; then
-    # If the config dir is bind mounted then chown it
-    if [ "$(stat -c %u /vault/config)" != "$(id -u vault)" ]; then
-        chown -R vault:vault /vault/config || echo "Could not chown /vault/config (may not have appropriate permissions)"
-    fi
 
-    # If the logs dir is bind mounted then chown it
-    if [ "$(stat -c %u /vault/logs)" != "$(id -u vault)" ]; then
-        chown -R vault:vault /vault/logs
-    fi
-
-    # If the file dir is bind mounted then chown it
-    if [ "$(stat -c %u /vault/file)" != "$(id -u vault)" ]; then
-        chown -R vault:vault /vault/file
-    fi
+    # Ensure all of our permissions are set properly
+    chown -R vault:vault /vault || echo "Could not chown /vault (may not have appropriate permissions)"
 
     if [ -z "$SKIP_SETCAP" ]; then
         # Allow mlock to avoid swapping Vault memory to disk
