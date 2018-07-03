@@ -10,7 +10,7 @@ RUN addgroup vault && \
 
 # Set up certificates, our base tools, and Vault.
 RUN set -eux; \
-    apk add --no-cache ca-certificates gnupg openssl libcap su-exec dumb-init && \
+    apk add --no-cache ca-certificates gnupg openssl libcap su-exec dumb-init curl && \
     apkArch="$(apk --print-arch)"; \
     case "$apkArch" in \
         armhf) ARCH='arm' ;; \
