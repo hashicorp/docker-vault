@@ -27,7 +27,7 @@ RUN set -eux; \
         hkp://pgp.mit.edu:80 \
     ; do \
         echo "Fetching GPG key $VAULT_GPGKEY from $server"; \
-        gpg --keyserver "$server" --recv-keys "$VAULT_GPGKEY" && found=yes && break; \
+        gpg --no-tty --keyserver "$server" --recv-keys "$VAULT_GPGKEY" && found=yes && break; \
     done; \
     test -z "$found" && echo >&2 "error: failed to fetch GPG key $VAULT_GPGKEY" && exit 1; \
     mkdir -p /tmp/build && \
