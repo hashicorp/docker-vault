@@ -1,8 +1,5 @@
 # Vault Official Image Build
 
-The version of this hosted on [HashiCorp's Docker Hub for Vault](https://hub.docker.com/r/hashicorp/vault/)
-is built from the same source as the [Vault Official Image](https://hub.docker.com/_/vault/).
-
 There are several pieces that are used to build this image:
 
 * We start with an Alpine base image and add CA certificates in order to reach
