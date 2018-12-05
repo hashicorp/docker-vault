@@ -45,6 +45,11 @@ RUN set -eux; \
     apk del gnupg openssl && \
     rm -rf /root/.gnupg
 
+# Give the Vault executable the ability to use the mlock syscall 
+# without running the process as root.
+# See https://www.vaultproject.io/docs/configuration/ for details.
+RUN setcap cap_ipc_lock=+ep $(readlink -f $(which vault))
+
 # /vault/logs is made available to use as a location to store audit logs, if
 # desired; /vault/file is made available to use as a location with the file
 # storage backend, if desired; the server will be started with /vault/config as
