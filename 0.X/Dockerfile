@@ -1,7 +1,7 @@
 FROM alpine:3.8
 
 # This is the release of Vault to pull in.
-ENV VAULT_VERSION=1.0.0-beta1
+ENV VAULT_VERSION=1.0.0
 
 # Create a vault user and group first so the IDs get set the same way,
 # even as the rest of this may change over time.
@@ -27,7 +27,7 @@ RUN set -eux; \
         hkp://pgp.mit.edu:80 \
     ; do \
         echo "Fetching GPG key $VAULT_GPGKEY from $server"; \
-        gpg --keyserver "$server" --recv-keys "$VAULT_GPGKEY" && found=yes && break; \
+        gpg --batch --keyserver "$server" --recv-keys "$VAULT_GPGKEY" && found=yes && break; \
     done; \
     test -z "$found" && echo >&2 "error: failed to fetch GPG key $VAULT_GPGKEY" && exit 1; \
     mkdir -p /tmp/build && \
