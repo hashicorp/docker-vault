@@ -6,6 +6,9 @@ set -e
 # wouldn't do either of these functions so we'd leak zombies as well as do
 # unclean termination of all our sub-processes.
 
+# Prevent core dumps
+ulimit -c 0
+
 # Allow setting VAULT_REDIRECT_ADDR and VAULT_CLUSTER_ADDR using an interface
 # name instead of an IP address. The interface name is specified using
 # VAULT_REDIRECT_INTERFACE and VAULT_CLUSTER_INTERFACE environment variables. If
