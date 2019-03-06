@@ -1,7 +1,7 @@
 FROM alpine:3.8
 
 # This is the release of Vault to pull in.
-ENV VAULT_VERSION=1.0.3
+ENV VAULT_VERSION=1.1.0-beta1
 
 # Create a vault user and group first so the IDs get set the same way,
 # even as the rest of this may change over time.
@@ -16,7 +16,7 @@ RUN set -eux; \
         armhf) ARCH='arm' ;; \
         aarch64) ARCH='arm64' ;; \
         x86_64) ARCH='amd64' ;; \
-        x86) ARCH='386' ;; \ 
+        x86) ARCH='386' ;; \
         *) echo >&2 "error: unsupported architecture: $apkArch"; exit 1 ;; \
     esac && \
     VAULT_GPGKEY=91A6E7F85D05C65630BEF18951852D87348FFC4C; \
