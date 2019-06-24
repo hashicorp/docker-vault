@@ -2,6 +2,7 @@ FROM alpine:3.8
 
 # This is the release of Vault to pull in.
 ARG VAULT_VERSION=1.1.3
+ARG ENTERPRISE_TRIAL=false
 
 # Create a vault user and group first so the IDs get set the same way,
 # even as the rest of this may change over time.
@@ -32,13 +33,14 @@ RUN set -eux; \
     test -z "$found" && echo >&2 "error: failed to fetch GPG key $VAULT_GPGKEY" && exit 1; \
     mkdir -p /tmp/build && \
     cd /tmp/build && \
-    wget -O vault-enterprise_${VAULT_VERSION}+ent_linux_${ARCH}.zip https://s3-us-west-2.amazonaws.com/hc-enterprise-binaries/vault/ent/${VAULT_VERSION}/vault-enterprise_${VAULT_VERSION}%2Bent_linux_${ARCH}.zip && \
-    wget https://s3-us-west-2.amazonaws.com/hc-enterprise-binaries/vault/ent/${VAULT_VERSION}/vault-enterprise_${VAULT_VERSION}%2Bent_SHA256SUMS && \
-    wget https://s3-us-west-2.amazonaws.com/hc-enterprise-binaries/vault/ent/${VAULT_VERSION}/vault-enterprise_${VAULT_VERSION}%2Bent_SHA256SUMS.sig && \
-    gpg --batch --verify vault-enterprise_${VAULT_VERSION}%2Bent_SHA256SUMS.sig vault-enterprise_${VAULT_VERSION}%2Bent_SHA256SUMS && \
-    ls -l && \
-    grep vault-enterprise_${VAULT_VERSION}+ent_linux_${ARCH}.zip vault-enterprise_${VAULT_VERSION}%2Bent_SHA256SUMS && \
-    unzip -d /bin vault-enterprise_${VAULT_VERSION}+ent_linux_${ARCH}.zip && \
+
+    # downloads enterprise trial license if --build-arg ENTERPRISE_TRIAL=true is passed
+    if [ $ENTERPRISE_TRIAL = true ]; then wget -O vault-enterprise_${VAULT_VERSION}+ent_linux_${ARCH}.zip https://s3-us-west-2.amazonaws.com/hc-enterprise-binaries/vault/ent/${VAULT_VERSION}/vault-enterprise_${VAULT_VERSION}%2Bent_linux_${ARCH}.zip ; else wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_${ARCH}.zip ; fi && \
+    if [ $ENTERPRISE_TRIAL = true ]; then wget https://s3-us-west-2.amazonaws.com/hc-enterprise-binaries/vault/ent/${VAULT_VERSION}/vault-enterprise_${VAULT_VERSION}%2Bent_SHA256SUMS ; else wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_SHA256SUMS ; fi && \   
+    if [ $ENTERPRISE_TRIAL = true ]; then wget https://s3-us-west-2.amazonaws.com/hc-enterprise-binaries/vault/ent/${VAULT_VERSION}/vault-enterprise_${VAULT_VERSION}%2Bent_SHA256SUMS.sig ; else  wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_SHA256SUMS.sig ; fi && \
+    if [ $ENTERPRISE_TRIAL = true ]; then gpg --batch --verify vault-enterprise_${VAULT_VERSION}%2Bent_SHA256SUMS.sig vault-enterprise_${VAULT_VERSION}%2Bent_SHA256SUMS ; else gpg --batch --verify vault_${VAULT_VERSION}_SHA256SUMS.sig vault_${VAULT_VERSION}_SHA256SUMS ; fi && \
+    if [ $ENTERPRISE_TRIAL = true ]; then grep vault-enterprise_${VAULT_VERSION}+ent_linux_${ARCH}.zip vault-enterprise_${VAULT_VERSION}%2Bent_SHA256SUMS | sha256sum -c ; else grep vault_${VAULT_VERSION}_linux_${ARCH}.zip vault_${VAULT_VERSION}_SHA256SUMS | sha256sum -c ; fi && \
+    if [ $ENTERPRISE_TRIAL = true ]; then unzip -d /bin vault-enterprise_${VAULT_VERSION}+ent_linux_${ARCH}.zip ; else unzip -d /bin vault_${VAULT_VERSION}_linux_${ARCH}.zip ; fi && \
     cd /tmp && \
     rm -rf /tmp/build && \
     gpgconf --kill dirmngr && \
@@ -79,3 +81,4 @@ ENTRYPOINT ["docker-entrypoint.sh"]
 # By default you'll get a single-node development server that stores everything
 # in RAM and bootstraps itself. Don't use this configuration for production.
 CMD ["server", "-dev"]
+
