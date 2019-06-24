@@ -1,4 +1,8 @@
-# About this Repo
+## Enterprise Trial
+
+To build a container with the enterprise trial binary, pass `--build-arg ENTERPRISE_TRIAL=true`. The service will expire after 30m so please be aware.
+
+## About this Repo
 
 This is the Git repo of the Vault [official
 image](https://docs.docker.com/docker-hub/official_repos/) for
