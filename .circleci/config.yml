@@ -1,0 +1,12 @@
+version: 2.1
+jobs:
+  dummy:
+    docker:
+      - image: busybox
+    steps:
+      - run: echo "This is a dummy job on master to allow running circleci on other branches."
+
+workflows:
+  main:
+    jobs:
+      - dummy
