@@ -1,8 +1,8 @@
-version: 2
-docker:
-  - image: circleci/buildpack-deps:buster
+version: 2.1
 jobs:
   build:
+    docker:
+      - image: circleci/buildpack-deps:buster
     steps:
       - setup_remote_docker
       - checkout
@@ -11,7 +11,6 @@ jobs:
           command: |
             make -C 0.X image
 workflows:
-  version: 2
   ci:
     jobs:
       - build
