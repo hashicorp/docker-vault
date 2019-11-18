@@ -2,6 +2,9 @@ FROM alpine:3.10
 
 # This is the release of Vault to pull in.
 ARG VAULT_VERSION=1.3.0
+ARG CGO_ENABLED=false
+
+ENV CGO_ENABLED $CGO_ENABLED
 
 # Create a vault user and group first so the IDs get set the same way,
 # even as the rest of this may change over time.
@@ -57,7 +60,7 @@ RUN mkdir -p /vault/logs && \
 
 # For images compiled with CGO_ENABLED=1, glibc is required.  So making a link to
 # musl to satisfy the glibc requirements.
-RUN mkdir /lib64 && ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2
+RUN if [ "$CGO_ENABLED" = "true" ]; then mkdir /lib64 && ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2; fi
 
 # Expose the logs directory as a volume since there's potentially long-running
 # state in there
