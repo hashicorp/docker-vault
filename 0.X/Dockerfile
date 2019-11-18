@@ -55,6 +55,10 @@ RUN mkdir -p /vault/logs && \
     mkdir -p /vault/config && \
     chown -R vault:vault /vault
 
+# For images compiled with CGO_ENABLED=1, glibc is required.  So making a link to
+# musl to satisfy the glibc requirements.
+RUN mkdir /lib64 && ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2
+
 # Expose the logs directory as a volume since there's potentially long-running
 # state in there
 VOLUME /vault/logs
