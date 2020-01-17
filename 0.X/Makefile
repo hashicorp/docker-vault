@@ -9,9 +9,7 @@ build: image publish
 
 image: 
 	docker build --build-arg VAULT_VERSION=$(VERSION)+ent --no-cache -t $(IMAGE_TAG)_ent .
-	docker build --build-arg VAULT_VERSION=$(VERSION)+ent.hsm --no-cache -t $(IMAGE_TAG)_ent.hsm .
 
 
 publish: 
 	docker push $(IMAGE_TAG)_ent
-	docker push $(IMAGE_TAG)_ent.hsm
