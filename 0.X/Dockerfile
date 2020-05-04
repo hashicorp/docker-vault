@@ -6,7 +6,8 @@ ARG VAULT_VERSION=1.4.1
 # Create a vault user and group first so the IDs get set the same way,
 # even as the rest of this may change over time.
 RUN addgroup vault && \
-    adduser -S -G vault vault
+    adduser -S -G vault vault && \
+    addgroup vault root
 
 # Set up certificates, our base tools, and Vault.
 RUN set -eux; \
@@ -50,10 +51,13 @@ RUN set -eux; \
 # storage backend, if desired; the server will be started with /vault/config as
 # the configuration directory so you can add additional config files in that
 # location.
+ENV HOME /home/vault
 RUN mkdir -p /vault/logs && \
     mkdir -p /vault/file && \
     mkdir -p /vault/config && \
-    chown -R vault:vault /vault
+    mkdir -p $HOME && \
+    chgrp -R 0 $HOME && chmod -R g+rwX $HOME && \
+    chgrp -R 0 /vault && chmod -R g+rwX /vault
 
 # Expose the logs directory as a volume since there's potentially long-running
 # state in there
@@ -74,6 +78,8 @@ EXPOSE 8200
 # capability so that Vault can mlock memory.
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 ENTRYPOINT ["docker-entrypoint.sh"]
+
+USER 100
 
 # By default you'll get a single-node development server that stores everything
 # in RAM and bootstraps itself. Don't use this configuration for production.
