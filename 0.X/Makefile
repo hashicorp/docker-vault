@@ -1,6 +1,6 @@
 REGISTRY_NAME?=docker.io/hashicorp
 IMAGE_NAME=vault-enterprise
-VERSION=1.4.1
+VERSION=1.4.2
 IMAGE_TAG=$(REGISTRY_NAME)/$(IMAGE_NAME):$(VERSION)
 
 .PHONY: build image publish
