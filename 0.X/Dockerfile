@@ -3,6 +3,14 @@ FROM alpine:3.10
 # This is the release of Vault to pull in.
 ARG VAULT_VERSION=1.4.1
 
+# Install dependencies
+RUN \
+  apk add --update \
+  # Install jq, curl and aws cli (to get access to secret manager)
+  jq curl py2-pip
+  # Install awscli for secret manager
+RUN pip install --upgrade pip awscli
+
 # Create a vault user and group first so the IDs get set the same way,
 # even as the rest of this may change over time.
 RUN addgroup vault && \
@@ -53,6 +61,7 @@ RUN set -eux; \
 RUN mkdir -p /vault/logs && \
     mkdir -p /vault/file && \
     mkdir -p /vault/config && \
+    mkdir -p /vault/ssl && \
     chown -R vault:vault /vault
 
 # Expose the logs directory as a volume since there's potentially long-running
@@ -67,6 +76,10 @@ VOLUME /vault/file
 # Vault.
 EXPOSE 8200
 
+# Interfaces for both cluster and listerner IP's
+ENV VAULT_REDIRECT_INTERFACE eth0
+ENV VAULT_CLUSTER_INTERFACE eth0
+
 # The entry point script uses dumb-init as the top-level process to reap any
 # zombie processes created by Vault sub-processes.
 #
@@ -77,4 +90,4 @@ ENTRYPOINT ["docker-entrypoint.sh"]
 
 # By default you'll get a single-node development server that stores everything
 # in RAM and bootstraps itself. Don't use this configuration for production.
-CMD ["server", "-dev"]
+CMD ["server"]
