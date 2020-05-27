@@ -1,15 +1,16 @@
 REGISTRY_NAME?=docker.io/hashicorp
-IMAGE_NAME=vault-enterprise
 VERSION=1.4.2
-IMAGE_TAG=$(REGISTRY_NAME)/$(IMAGE_NAME):$(VERSION)
+IMAGE_TAG_ENT=$(REGISTRY_NAME)/vault-enterprise:$(VERSION)_ent
+IMAGE_TAG_OSS=$(REGISTRY_NAME)/vault:$(VERSION)
 
-.PHONY: build image publish
+.PHONY: build ent-image oss-image
 
-build: image publish
+build: ent-image oss-image
 
-image: 
-	docker build --build-arg VAULT_VERSION=$(VERSION)+ent --no-cache -t $(IMAGE_TAG)_ent .
+ent-image: 
+	docker build --build-arg VAULT_VERSION=$(VERSION)+ent --no-cache -t $(IMAGE_TAG_ENT) .
+	docker tag $(IMAGE_TAG_ENT) $(REGISTRY_NAME)/vault-enterprise:latest
 
-
-publish: 
-	docker push $(IMAGE_TAG)_ent
+oss-image:
+	docker build --build-arg VAULT_VERSION=$(VERSION) --no-cache -t $(IMAGE_TAG_OSS) .
+	docker tag $(IMAGE_TAG_OSS) $(REGISTRY_NAME)/vault:latest
