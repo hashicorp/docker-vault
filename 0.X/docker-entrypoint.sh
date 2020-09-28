@@ -23,7 +23,6 @@ if [ "$VAULT_ENV" != "development" ]; then
 
   secrets=$(aws secretsmanager get-secret-value --secret-id ${AWSSM_NAME} --region ${AWS_SM_REGION} | jq .SecretString -r )
   keys=$(echo $secrets | jq '. | keys[] ')
-  echo "After SM fetch..."
  
   # Loop through the keys and export them
   for key in $keys
@@ -31,6 +30,20 @@ if [ "$VAULT_ENV" != "development" ]; then
     key_new=$(echo $key | sed 's/"//g' )
     export $key_new=$(echo $secrets | jq ".[$key]" | sed 's/"//g')
   done
+
+  ######## Get RDS cert from AWS Secret Manager and store in file
+  STAGE=$(echo $AWSSM_NAME | cut -d'/' -f1)
+  STAGE=${STAGE:-dev}
+
+  echo "Getting rds certs"
+  mkdir -p /etc/rds/
+  export RDS_CERT_PATH=/etc/rds/rds-combined-ca-bundle.pem
+  rdscerts_secret_name=${STAGE}/application/rdscerts
+  echo -ne $(aws secretsmanager get-secret-value --secret-id ${rdscerts_secret_name} --region ${AWS_SM_REGION} | jq -r '.SecretString' | jq '.rds_sslca') > ${RDS_CERT_PATH}.tmp
+  cat ${RDS_CERT_PATH}.tmp | tr -d '"' > ${RDS_CERT_PATH}
+  rm ${RDS_CERT_PATH}.tmp
+  ######## Get RDS cert from AWS Secret Manager and store in file
+
   ########################## FETCH THE SECRETS FROM AWS SECRET MANAGER AND EXPORT AS ENV VARIABLE ###########################
 fi
 
@@ -78,6 +91,7 @@ echo "Using $VAULT_REDIRECT_INTERFACE for STATSD_ADDRESS: $STATSD_ADDRESS"
 VAULT_CONFIG_DIR=/vault/config
 
 VAULT_LOCAL_CONFIG=$(cat <<EOF
+
 listener "tcp" {
   address         = "0.0.0.0:8200"
   cluster_address = "0.0.0.0:8201"
@@ -92,6 +106,7 @@ storage "mysql" {
     database = "${DATABASE_NAME}"
     ha_enabled = "${VAULT_HA_ENABLED}"
     lock_table = "${VAULT_HA_LOCK_TABLE}"
+    tls_ca_file = "${RDS_CERT_PATH}"
 }
 
 telemetry {
