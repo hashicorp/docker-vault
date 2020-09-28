@@ -61,11 +61,6 @@ VOLUME /vault/file
 # Vault.
 EXPOSE 8200
 
-# The entry point script uses dumb-init as the top-level process to reap any
-# zombie processes created by Vault sub-processes.
-#
-# For production derivatives of this container, you shoud add the IPC_LOCK
-# capability so that Vault can mlock memory.
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 ENTRYPOINT ["docker-entrypoint.sh"]
 
