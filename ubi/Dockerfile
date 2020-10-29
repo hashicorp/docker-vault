@@ -1,8 +1,21 @@
 FROM registry.access.redhat.com/ubi8/ubi-minimal:8.2
 
 LABEL maintainer="HashiCorp"
-ARG VAULT_VERSION=1.5.4
- 
+ARG VAULT_VERSION=1.5.5
+
+# Additional metadata labels used by container registries, platforms
+# and certification scanners.
+LABEL name="Vault" \
+      maintainer="Vault Team <vault@hashicorp.com>" \
+      vendor="HashiCorp" \
+      version=$VAULT_VERSION \
+      release=$VAULT_VERSION \
+      summary="Vault is a tool for securely accessing secrets." \
+      description="Vault is a tool for securely accessing secrets. A secret is anything that you want to tightly control access to, such as API keys, passwords, certificates, and more. Vault provides a unified interface to any secret, while providing tight access control and recording a detailed audit log."
+
+# Copy license for Red Hat certification.
+COPY LICENSE /licenses/mozilla.txt
+
 # Set up certificates, our base tools, and Vault.
 RUN set -eux; \
     microdnf install -y ca-certificates gnupg openssl libcap tzdata wget unzip procps shadow-utils util-linux && \
@@ -45,7 +58,7 @@ RUN mkdir -p /vault/logs && \
     mkdir -p /vault/file && \
     mkdir -p /vault/config && \
     mkdir -p $HOME && \
-    chown -R vault /vault && chown -R vault $HOME && \ 
+    chown -R vault /vault && chown -R vault $HOME && \
     chgrp -R 0 $HOME && chmod -R g+rwX $HOME && \
     chgrp -R 0 /vault && chmod -R g+rwX /vault
 
