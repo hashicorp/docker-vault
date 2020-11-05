@@ -1,7 +1,7 @@
 FROM alpine:3.10
 
 # This is the release of Vault to pull in.
-ARG VAULT_VERSION=1.5.5
+ARG VAULT_VERSION=1.6.0-rc
 
 # Additional metadata labels used by container registries, platforms
 # and certification scanners.
