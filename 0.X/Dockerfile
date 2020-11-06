@@ -3,19 +3,6 @@ FROM alpine:3.10
 # This is the release of Vault to pull in.
 ARG VAULT_VERSION=1.6.0-rc
 
-# Additional metadata labels used by container registries, platforms
-# and certification scanners.
-LABEL name="Vault" \
-      maintainer="Vault Team <vault@hashicorp.com>" \
-      vendor="HashiCorp" \
-      version=$VAULT_VERSION \
-      release=$VAULT_VERSION \
-      summary="Vault is a tool for securely accessing secrets." \
-      description="Vault is a tool for securely accessing secrets. A secret is anything that you want to tightly control access to, such as API keys, passwords, certificates, and more. Vault provides a unified interface to any secret, while providing tight access control and recording a detailed audit log."
-
-# Copy license for Red Hat certification.
-COPY LICENSE /licenses/mozilla.txt
-
 # Create a vault user and group first so the IDs get set the same way,
 # even as the rest of this may change over time.
 RUN addgroup vault && \
