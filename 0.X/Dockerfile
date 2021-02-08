@@ -5,7 +5,9 @@ ARG VAULT_VERSION=1.6.2
 
 # Create a vault user and group first so the IDs get set the same way,
 # even as the rest of this may change over time.
-RUN addgroup vault && \
+RUN apk update && \
+    apk --no-cache upgrade && \
+    addgroup vault && \
     adduser -S -G vault vault
 
 # Set up certificates, our base tools, and Vault.
