@@ -22,6 +22,7 @@ RUN set -eux; \
     VAULT_GPGKEY=91A6E7F85D05C65630BEF18951852D87348FFC4C; \
     found=''; \
     for server in \
+        hkps://keys.openpgp.org \
         hkp://p80.pool.sks-keyservers.net:80 \
         hkp://keyserver.ubuntu.com:80 \
         hkp://pgp.mit.edu:80 \
