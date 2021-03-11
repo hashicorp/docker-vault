@@ -1,5 +1,5 @@
 REGISTRY_NAME?=docker.io/hashicorp
-VERSION=1.6.3
+VERSION=1.7.0-rc1
 IMAGE_TAG_ENT=$(REGISTRY_NAME)/vault-enterprise:$(VERSION)-ubi-ent
 IMAGE_TAG_OSS=$(REGISTRY_NAME)/vault:$(VERSION)-ubi
 
