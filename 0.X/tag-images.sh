@@ -1,8 +1,53 @@
 #!/bin/bash
 
-# If this is not a pre-release, we determine if any of the 'latest' images need to be updated
+#     * PRERELEASE_VERSION - any prerelease versions (beta1, rc1)
 
+# Introspects the docker label of an container to see what version 'latest' is
+function get_latest_docker_version {
+   # Arguments:
+   #   $1 - Docker Org
+   #   $2 - Docker Image Name
+   #
+   #
+   # Returns:
+   #   0 - success (version in the 'latest' container echoed)
+   #   1 - 'latest' tag does not exist or label could not be found
+
+   docker pull "$1"/"$2":latest &> /dev/null
+   local docker_latest=$(docker inspect --format="{{ index .Config.Labels.version }}" "$1"/"$2":latest 2> /dev/null)
+
+   if [ -z "$docker_latest" ]; then
+      return 1
+   else
+      echo "$docker_latest"
+      return 0
+   fi
+}
+
+# Calculates the higher of two versions
+function higher_version {
+   # Arguments:
+   #   $1 - first version to compare
+   #   $2 - second version to compare
+   #
+   # Returns:
+   #   higher version of two arguments
+
+   higher_version=$(echo -e "$1\n$2" | sort -rV | head -n 1)
+   echo "$higher_version"
+}
+
+# If this is not a pre-release, we determine if any of the 'latest' images need to be updated
 function main() {
+
+   : "${VERSION?"Need to set VERSION"}"
+
+   DOCKER_ORG=${DOCKER_ORG:="hashicorp"}
+
+   LATEST_DOCKER_VERSION=$(get_latest_docker_version "$DOCKER_ORG" "$PROJECT_NAME")
+    echo "latest docker version is: $LATEST_DOCKER_VERSION"
+
+    DOCKER_TAG=${VERSION:?"VERSION is not set"}
    
    if [[ "${DOCKER_TAG}" =~ [0-9]+\.[0-9]+\.[0-9]+$ ]]; then
       # check to see if the current tag is higher than the latest version on dockerhub
@@ -17,7 +62,6 @@ function main() {
       if [ -z "$LATEST_DOCKER_VERSION" ] || [ "$HIGHER_LATEST_VERSION" = "$DOCKER_TAG" ]; then
          echo "Tagging a new latest docker image"
          docker tag "$DOCKER_ORG"/"$PROJECT_NAME":"$DOCKER_TAG" "$DOCKER_ORG"/"$PROJECT_NAME":latest || return 1
-         docker push "$DOCKER_ORG"/"$PROJECT_NAME":latest || return 1
       fi
    fi
    # If it is a prerelease, we don't tag latest so we do nothing here
