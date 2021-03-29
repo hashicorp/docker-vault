@@ -14,3 +14,6 @@ ent-image:
 oss-image:
 	docker build --build-arg VAULT_VERSION=$(VERSION) --no-cache -t $(IMAGE_TAG_OSS) .
 	docker tag $(IMAGE_TAG_OSS) $(REGISTRY_NAME)/vault:latest
+
+ci.docker-stage: 
+	@./0.X/tag-images.sh
