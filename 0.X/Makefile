@@ -5,7 +5,7 @@ export VERSION=1.7.0-rc1
 
 build: ent-image oss-image
 
-ent-imgage: export PROJECT_NAME=vault-enterprise
+ent-image: export PROJECT_NAME=vault-enterprise
 ent-image: export TAG_SUFFIX=_ent
 ent-image: 
 	docker build --label version=$(VERSION) --build-arg VAULT_VERSION=$(VERSION)+ent --no-cache -t $(REGISTRY_NAME)/$(PROJECT_NAME):$(VERSION)$(TAG_SUFFIX) .
