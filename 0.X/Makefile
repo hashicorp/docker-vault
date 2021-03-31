@@ -11,6 +11,7 @@ ent-image:
 	docker build --label version=$(VERSION) --build-arg VAULT_VERSION=$(VERSION)+ent --no-cache -t $(REGISTRY_NAME)/$(PROJECT_NAME):$(VERSION)$(TAG_SUFFIX) .
 	@../scripts/tag-images.sh
 
+oss-image: export PROJECT_NAME=vault
 oss-image:
 	docker build --label version=$(VERSION) --build-arg VAULT_VERSION=$(VERSION) --no-cache -t $(REGISTRY_NAME)/$(PROJECT_NAME):$(VERSION) .
 	@../scripts/tag-images.sh
