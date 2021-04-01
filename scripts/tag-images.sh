@@ -47,25 +47,11 @@ function main() {
 
 	: "${PROJECT_NAME?"Need to set PROJECT_NAME"}"
 
-	# LATEST_DOCKER_VERSION=$(get_latest_docker_version "$REGISTRY_NAME" "$PROJECT_NAME") || return 1
-	# echo "latest docker version is: $LATEST_DOCKER_VERSION"
-
 	DOCKER_TAG="$VERSION$TAG_SUFFIX"
 
    if [[ "${VERSION}" =~ [0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-      # check to see if the current tag is higher than the latest version on dockerhub
-    #   HIGHER_LATEST_VERSION=$(higher_version "$VERSION" "$LATEST_DOCKER_VERSION")
-    #   echo "Image version is: $VERSION"
-    #   echo "Latest tag is: $LATEST_DOCKER_VERSION"
-    #   echo "Higher version is: $HIGHER_LATEST_VERSION"
-      # if:
-      #   * we didn't find a version from the 'latest' image, it means it doesn't exist
-      #   * or if the current tag version is higher than the latest docker one (or the same)
-      # we build latest
-    #   if [ -z "$LATEST_DOCKER_VERSION" ] || [ "$HIGHER_LATEST_VERSION" = "$VERSION" ]; then
          echo "Tagging a new latest docker image"
          docker tag "$REGISTRY_NAME"/"$PROJECT_NAME":"$DOCKER_TAG" "$REGISTRY_NAME"/"$PROJECT_NAME":latest || return 1
-    #   fi
    fi
    # If it is a prerelease, we don't tag latest so we do nothing here
 
