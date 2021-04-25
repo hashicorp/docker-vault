@@ -19,7 +19,7 @@ COPY LICENSE /licenses/mozilla.txt
 # Set up certificates, our base tools, and Vault.
 RUN set -eux; \
     microdnf install -y ca-certificates gnupg openssl libcap tzdata wget unzip procps shadow-utils util-linux && \
-    VAULT_GPGKEY=91A6E7F85D05C65630BEF18951852D87348FFC4C; \
+    VAULT_GPGKEY=C874011F0AB405110D02105534365D9472D7468F; \
     found=''; \
     for server in \
         hkp://p80.pool.sks-keyservers.net:80 \
