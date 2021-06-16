@@ -18,6 +18,14 @@ COPY LICENSE /licenses/mozilla.txt
 
 # Set up certificates, our base tools, and Vault.
 RUN set -eux; \
+    osArch="$(uname -m)"; \
+    case "$osArch" in \
+        armhf) ARCH='arm' ;; \
+        aarch64) ARCH='arm64' ;; \
+        x86_64) ARCH='amd64' ;; \
+        x86) ARCH='386' ;; \
+        *) echo >&2 "error: unsupported architecture: $osArch"; exit 1 ;; \
+    esac && \
     microdnf install -y ca-certificates gnupg openssl libcap tzdata wget unzip procps shadow-utils util-linux && \
     VAULT_GPGKEY=C874011F0AB405110D02105534365D9472D7468F; \
     found=''; \
@@ -32,12 +40,12 @@ RUN set -eux; \
     test -z "$found" && echo >&2 "error: failed to fetch GPG key $VAULT_GPGKEY" && exit 1; \
     mkdir -p /tmp/build && \
     cd /tmp/build && \
-    wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip && \
+    wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_${ARCH}.zip && \
     wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_SHA256SUMS && \
     wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_SHA256SUMS.sig && \
     gpg --batch --verify vault_${VAULT_VERSION}_SHA256SUMS.sig vault_${VAULT_VERSION}_SHA256SUMS && \
-    grep vault_${VAULT_VERSION}_linux_amd64.zip vault_${VAULT_VERSION}_SHA256SUMS | sha256sum -c && \
-    unzip -d /bin vault_${VAULT_VERSION}_linux_amd64.zip && \
+    grep vault_${VAULT_VERSION}_linux_${ARCH}.zip vault_${VAULT_VERSION}_SHA256SUMS | sha256sum -c && \
+    unzip -d /bin vault_${VAULT_VERSION}_linux_${ARCH}.zip && \
     cd /tmp && \
     rm -rf /tmp/build && \
     gpgconf --kill dirmngr && \
