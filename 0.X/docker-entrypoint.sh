@@ -54,6 +54,11 @@ if [ "$1" = 'server' ]; then
     shift
     set -- vault server \
         -config="$VAULT_CONFIG_DIR" \
+        "$@"
+elif [ "$1" = 'server' && "$2" = '-dev' ]; then
+    shift 2
+    set -- vault server -dev \
+        -config="$VAULT_CONFIG_DIR" \
         -dev-root-token-id="$VAULT_DEV_ROOT_TOKEN_ID" \
         -dev-listen-address="${VAULT_DEV_LISTEN_ADDRESS:-"0.0.0.0:8200"}" \
         "$@"
