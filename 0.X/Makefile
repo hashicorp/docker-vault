@@ -21,7 +21,7 @@ oss-image:
 xc-prod-image:
 	docker buildx build --platform linux/amd64,linux/arm64,linux/386,linux/arm/v6 \
 	--build-arg VAULT_VERSION=$(VERSION)$(VAULT_VERSION_SUFFIX) \
-	--label version=$(VERSION)$(VAULT_VERSION_SUFFIX) \
+	--label version=$(VERSION) \
 	$(XC_PUBLISH) \
 	-t $(IMAGE_TAG) \
 	.
