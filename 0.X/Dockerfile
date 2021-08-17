@@ -1,4 +1,4 @@
-FROM alpine:3.13
+FROM alpine:3.14
 
 # This is the release of Vault to pull in.
 ARG VAULT_VERSION=1.8.1
@@ -40,7 +40,7 @@ RUN set -eux; \
     unzip -d /tmp/build vault_${VAULT_VERSION}_linux_${ARCH}.zip && \
     cp /tmp/build/vault /bin/vault && \
     if [ -f /tmp/build/EULA.txt ]; then mkdir -p /usr/share/doc/vault; mv /tmp/build/EULA.txt /usr/share/doc/vault/EULA.txt; fi && \
-    if [ -f /tmp/build/TermsOfEvaluation.txt ]; then mkdir -p /usr/share/doc/vault; mv /tmp/build/TermsOfEvaluation.txt /usr/share/doc/vault/TermsOfEvaluation.txt; fi && \ 
+    if [ -f /tmp/build/TermsOfEvaluation.txt ]; then mkdir -p /usr/share/doc/vault; mv /tmp/build/TermsOfEvaluation.txt /usr/share/doc/vault/TermsOfEvaluation.txt; fi && \
     cd /tmp && \
     rm -rf /tmp/build && \
     gpgconf --kill dirmngr && \
