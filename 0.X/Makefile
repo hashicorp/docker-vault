@@ -1,5 +1,5 @@
 export REGISTRY_NAME?=docker.io/hashicorp
-export VERSION=1.7.4
+export VERSION=1.8.2
 
 .PHONY: build ent-image oss-image xc-prod-image
 
