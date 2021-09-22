@@ -1,15 +1,15 @@
-REGISTRY_NAME?=docker.io/hashicorp
-IMAGE_NAME=vault-enterprise
-VERSION=1.5.3
+REGISTRY_NAME?=899991151204.dkr.ecr.us-east-1.amazonaws.com
+IMAGE_NAME=vault
+VERSION=1.8.2
 IMAGE_TAG=$(REGISTRY_NAME)/$(IMAGE_NAME):$(VERSION)
 
-.PHONY: build image publish
+.PHONY: build image push
 
-build: image publish
+build: image push
 
 image: 
-	docker build --build-arg VAULT_VERSION=$(VERSION)+ent --no-cache -t $(IMAGE_TAG)_ent .
-
+	docker build --build-arg VAULT_VERSION=$(VERSION) -t $(IMAGE_TAG) 0.X
 
 publish: 
-	docker push $(IMAGE_TAG)_ent
+	/usr/bin/aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(REGISTRY_NAME)
+	docker push $(IMAGE_TAG)
