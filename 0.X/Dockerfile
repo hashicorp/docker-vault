@@ -1,15 +1,15 @@
-FROM alpine:3.10
+FROM alpine:3.14
 
 # This is the release of Vault to pull in.
-ARG VAULT_VERSION=1.5.3
+ARG VAULT_VERSION=1.8.2
 
 # Install dependencies
 RUN \
   apk add --update \
   # Install jq, curl and aws cli (to get access to secret manager)
-  jq curl py2-pip
+  jq curl py3-pip
   # Install awscli for secret manager
-RUN pip install --upgrade pip awscli
+RUN pip3 install --upgrade pip awscli
 
 # Create a vault user and group first so the IDs get set the same way,
 # even as the rest of this may change over time.
@@ -27,7 +27,7 @@ RUN set -eux; \
         x86) ARCH='386' ;; \
         *) echo >&2 "error: unsupported architecture: $apkArch"; exit 1 ;; \
     esac && \
-    VAULT_GPGKEY=91A6E7F85D05C65630BEF18951852D87348FFC4C; \
+    VAULT_GPGKEY=C874011F0AB405110D02105534365D9472D7468F; \
     found=''; \
     for server in \
         hkp://p80.pool.sks-keyservers.net:80 \
@@ -40,9 +40,9 @@ RUN set -eux; \
     test -z "$found" && echo >&2 "error: failed to fetch GPG key $VAULT_GPGKEY" && exit 1; \
     mkdir -p /tmp/build && \
     cd /tmp/build && \
-    wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_${ARCH}.zip && \
-    wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_SHA256SUMS && \
-    wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_SHA256SUMS.sig && \
+    wget -q https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_${ARCH}.zip && \
+    wget -q https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_SHA256SUMS && \
+    wget -q https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_SHA256SUMS.sig && \
     gpg --batch --verify vault_${VAULT_VERSION}_SHA256SUMS.sig vault_${VAULT_VERSION}_SHA256SUMS && \
     grep vault_${VAULT_VERSION}_linux_${ARCH}.zip vault_${VAULT_VERSION}_SHA256SUMS | sha256sum -c && \
     unzip -d /bin vault_${VAULT_VERSION}_linux_${ARCH}.zip && \
