@@ -12,6 +12,7 @@ pipeline {
   }
 
   environment {
+    BRANCH_NAME = "${ghprbSourceBranch ? ghprbSourceBranch : GIT_BRANCH.split("/")[1]}"
     ECR_REPO = "899991151204.dkr.ecr.us-east-1.amazonaws.com"
     IMAGE_NAME = 'vault'
     VAULT_VERSION = sh (returnStdout: true, script: "grep '^VERSION=' 0.X/Makefile | awk -F'=' '{print \$2}'").trim()
@@ -51,9 +52,7 @@ pipeline {
     }
 
     stage('Push Image') {
-      when { 
-        branch 'master'
-      }
+      when { expression { BRANCH_NAME == 'master' } }
       steps {
         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'ECR_PUSH_COUPADEV', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
           sh label: "Push Vault Image", script: "/usr/bin/make publish -f 0.X/Makefile"
@@ -61,42 +60,36 @@ pipeline {
       }
     }
 
-    stage('Upgrade Dev Vault Cluster') {
-      when { 
-        branch 'master'
-      }
+    stage('Upgrade CE Vault Cluster') {
+      when { expression { BRANCH_NAME == 'master' } }
       steps {
-        sh label: "Upgrade Dev Vault cluster", script: "echo 'Here we will be deploying $VAULT_IMAGE_TAG to Dev vault cluster'"
+        sh label: "Upgrade Dev Vault cluster", script: "echo 'Here we will be deploying $VAULT_IMAGE_TAG to CE vault cluster'"
       }
     }
 
     stage('Integration Tests') {
-      when { 
-        branch 'master'
-      }
+      when { expression { BRANCH_NAME == 'master' } }
       steps {
         sh label: "Integration Tests", script: "echo 'Here we will be running integration tests against Dev vault cluster'"
       }
     }
 
     stage('Send Slack notification') {
-      when {
-        branch 'master'
-      }
+      when { expression { BRANCH_NAME == 'master' } }
       steps {
         echo 'Sending Slack notification for approval....'
         slackSend (
           channel: '#parveztest',
           color: 'good',
-          message: "Waiting for manual approval from any of ${env.APPROVERS.split(',').collect { '@' + it.trim().replace('@coupa.com', '') }.join(',')} : '${env.JOB_NAME}' (${env.BUILD_NUMBER})! (<${env.RUN_DISPLAY_URL}|Open>)"
+          message: "Vault CD Pipeline - Waiting for manual approval from any of ${env.APPROVERS.split(',').collect { '@' + it.trim().replace('@coupa.com', '') }.join(',')} to upgrade Dev Vault clusters to ${env.VAULT_VERSION} version : '${env.JOB_NAME}' (${env.BUILD_NUMBER})! (<${env.RUN_DISPLAY_URL}|Open>)"
         )
         echo 'Sent Slack notification for approval!!'
       }
     }
 
-    stage('Deploy to Coupahost') {
+    stage('Upgrade Dev Clusters') {
       when {
-        branch 'master'
+        expression { BRANCH_NAME == 'master' }
         beforeInput true
         beforeOptions true
       }
