@@ -104,7 +104,7 @@ pipeline {
       steps {
         sh label: "Integration Tests", script: """
           echo "Upgrading ALL dev vault clusters with version ${VAULT_VERSION}..."
-          echo 'Here we will be running integration tests against Dev vault cluster
+          echo 'Here we will be running integration tests against Dev vault cluster'
         """
       }
     }
