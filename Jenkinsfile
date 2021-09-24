@@ -13,10 +13,8 @@ pipeline {
 
   environment {
     BRANCH_NAME = "${ghprbSourceBranch ? ghprbSourceBranch : GIT_BRANCH.split("/")[1]}"
-    ECR_REPO = "899991151204.dkr.ecr.us-east-1.amazonaws.com"
-    IMAGE_NAME = 'vault'
-    VAULT_VERSION = sh (returnStdout: true, script: "grep '^VERSION=' 0.X/Makefile | awk -F'=' '{print \$2}'").trim()
-    VAULT_IMAGE_TAG = "${ECR_REPO}/${IMAGE_NAME}:${VAULT_VERSION}"
+    VAULT_VERSION = sh (returnStdout: true, script: "./cd.sh vaultImageVersion").trim()
+    VAULT_IMAGE_TAG = sh (returnStdout: true, script: "./cd.sh vaultImageTag").trim()
     IMAGE_SCAN_RESULTS = 'vault-scan-results.json'
     APPROVERS = 'parvez.kazi@coupa.com,ramesh.sencha@coupa.com,marutinandan.pandya@coupa.com'
   }
@@ -24,13 +22,13 @@ pipeline {
   stages {
     stage('Dockerfile Lint') {
       steps {
-        sh label: "Lint Vault Dockerfile", script: "/usr/bin/docker run --rm -i hadolint/hadolint hadolint --no-fail - < 0.X/Dockerfile"
+        sh label: "Lint Vault Dockerfile", script: "./cd.sh vaultDockerfileLint"
       }
     }
 
     stage('Build Image') {
       steps {
-        sh label: "Build Vault Image", script: "/usr/bin/make image -f 0.X/Makefile"
+        sh label: "Build Vault Image", script: "./cd.sh vaultImageBuild"
       }
     }
 
@@ -55,7 +53,7 @@ pipeline {
       when { expression { BRANCH_NAME == 'master' } }
       steps {
         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'ECR_PUSH_COUPADEV', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-          sh label: "Push Vault Image", script: "/usr/bin/make publish -f 0.X/Makefile"
+          sh label: "Push Vault Image", script: "./cd.sh vaultImagePush"
         }
       }
     }
@@ -63,14 +61,14 @@ pipeline {
     stage('Upgrade CE Vault Cluster') {
       when { expression { BRANCH_NAME == 'master' } }
       steps {
-        sh label: "Upgrade Dev Vault cluster", script: "echo 'Here we will be deploying $VAULT_IMAGE_TAG to CE vault cluster'"
+        sh label: "Upgrade CE Vault cluster", script: "./cd.sh upgradeCEVaultCluster"
       }
     }
 
     stage('Integration Tests') {
       when { expression { BRANCH_NAME == 'master' } }
       steps {
-        sh label: "Integration Tests", script: "echo 'Here we will be running integration tests against Dev vault cluster'"
+        sh label: "Integration Tests", script: "./cd.sh vaultIntegrationTests"
       }
     }
 
@@ -102,10 +100,7 @@ pipeline {
         submitter "${env.APPROVERS}"
       }
       steps {
-        sh label: "Integration Tests", script: """
-          echo "Upgrading ALL dev vault clusters with version ${VAULT_VERSION}..."
-          echo 'Here we will be running integration tests against Dev vault cluster
-        """
+        sh label: "Upgrade AWS Dev Clusters", script: "./cd.sh upgradeDevVaultClusters"
       }
     }
   }
