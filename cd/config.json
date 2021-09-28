@@ -1,0 +1,9 @@
+{
+  "ce_vault_cluster": "vcqe-dev",
+  "ce_enterprise_deployment": "dev954",
+  "aws_coupadev_vault_clusters": {
+    "ap-southeast-2": "vault-dev0-ap10008",
+    "eu-west-1": "vault-dev0-eu10002",
+    "us-east-1": "vault-dev0-na10001"
+  }
+}
