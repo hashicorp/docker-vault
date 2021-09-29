@@ -1,7 +1,7 @@
 FROM registry.access.redhat.com/ubi8/ubi-minimal:8.4
 
 LABEL maintainer="HashiCorp"
-ARG VAULT_VERSION=1.8.2
+ARG VAULT_VERSION=1.6.7
 
 # Additional metadata labels used by container registries, platforms
 # and certification scanners.
