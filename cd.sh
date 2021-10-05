@@ -35,7 +35,7 @@ function vaultImageTag
 
 function vaultDockerfileLint
 {
-  infoLog "Scanning Vault Dockerfile with tool ${hadolint}"
+  infoLog 'Scanning Vault Dockerfile with tool hadolint'
   /usr/bin/docker run --rm -i hadolint/hadolint hadolint --no-fail - < ${DOCKERFILE_PATH}
 }
 
