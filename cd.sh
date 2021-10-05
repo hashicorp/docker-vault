@@ -1,5 +1,8 @@
 #!/bin/bash
 
+RESTORE='\033[0m'
+GREEN='\033[00;32m'
+RED='\033[00;31m'
 CONFIG_FILE="cd/config.json"
 DOCKERFILE_PATH="0.X/Dockerfile"
 CE_VAULT_CLUSTER=$(jq -r .ce_vault_cluster $CONFIG_FILE)
@@ -10,9 +13,14 @@ REGISTRY_NAME="899991151204.dkr.ecr.us-east-1.amazonaws.com"
 IMAGE_NAME="vault"
 IMAGE_TAG=${REGISTRY_NAME}/${IMAGE_NAME}:${VAULT_VERSION}
 
-function log
+function infoLog
 {
-  echo "$(date +"%Y-%m-%d %H:%M:%S") : $*"
+  echo -e "${GREEN}$(date +"%Y-%m-%d %H:%M:%S") [INFO] : $*${RESTORE}"
+}
+
+function errorLog
+{
+  echo -e "${RED}$(date +"%Y-%m-%d %H:%M:%S") [ERROR] : $*${RESTORE}"
 }
 
 function vaultImageVersion
@@ -27,13 +35,13 @@ function vaultImageTag
 
 function vaultDockerfileLint
 {
-  log "Scanning Vault Dockerfile with tool ${hadolint}"
+  infoLog 'Scanning Vault Dockerfile with tool hadolint'
   /usr/bin/docker run --rm -i hadolint/hadolint hadolint --no-fail - < ${DOCKERFILE_PATH}
 }
 
 function vaultImageBuild
 {
-  log "Building Vault Image with tag ${IMAGE_TAG}"
+  infoLog "Building Vault Image with tag ${IMAGE_TAG}"
   /usr/bin/docker build -t ${IMAGE_TAG} $(dirname ${DOCKERFILE_PATH})
 }
 
@@ -41,14 +49,14 @@ function ecrDockerLogin
 {
   REGION=$1
   ECR_REPO=$2
-  log "Doing docker login to registry ${ECR_REPO}"
+  infoLog "Doing docker login to registry ${ECR_REPO}"
   /usr/bin/aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_REPO}
 }
 
 function vaultImagePush
 {
   ecrDockerLogin 'us-east-1' "${REGISTRY_NAME}"
-  log "Pushing Vault Image ${IMAGE_TAG}"
+  infoLog "Pushing Vault Image ${IMAGE_TAG}"
 	/usr/bin/docker push ${IMAGE_TAG}
   for region_cluster in $AWS_COUPADEV_VAULT_REGION_CLUSTERS; do
     region=${region_cluster%=*}
@@ -57,12 +65,12 @@ function vaultImagePush
     fi
 
     REGION_TAG=${IMAGE_TAG/us-east-1/$region}
-    log "Tagging Vault Image ${IMAGE_TAG} as ${REGION_TAG}"
+    infoLog "Tagging Vault Image ${IMAGE_TAG} as ${REGION_TAG}"
     /usr/bin/docker tag ${IMAGE_TAG} ${REGION_TAG}
 
     ecrDockerLogin ${region} "${REGION_TAG}"
 
-    log "Pushing Vault Image ${REGION_TAG}"
+    infoLog "Pushing Vault Image ${REGION_TAG}"
     /usr/bin/docker push ${REGION_TAG}
   done
 }
@@ -74,9 +82,9 @@ function upgradeCEVaultCluster
 
 function vaultIntegrationTests
 {
-  log "Running Integration Tests on ${CE_VAULT_CLUSTER}"
-  log "Checking health of ${CE_VAULT_CLUSTER} from ${CE_ENTERPRISE_DEPLOYMENT}"
-  cd /opt/coupa-flash/main && bundle exec rake common:swift:run_command["${CE_ENTERPRISE_DEPLOYMENT}","${CE_ENTERPRISE_DEPLOYMENT}utl1","curl -s https://${CE_VAULT_CLUSTER}.io.coupadev.com/v1/sys/health| jq",false,true]
+  infoLog "Running Integration Tests on ${CE_VAULT_CLUSTER}"
+  infoLog "Checking health of ${CE_VAULT_CLUSTER} from ${CE_ENTERPRISE_DEPLOYMENT}"
+  cd /opt/coupa-flash/main && bundle exec rake common:swift:run_command["${CE_ENTERPRISE_DEPLOYMENT}","${CE_ENTERPRISE_DEPLOYMENT}utl1","curl -s https://${CE_VAULT_CLUSTER}.io.coupadev.com/v1/sys/health | jq",false,true]
 }
 
 function upgradeDevVaultClusters
@@ -92,8 +100,8 @@ function upgradeVaultCluster
 { 
   region=$1
   cluster=$2
-  log "Upgrading AWS Coupadev Vault Cluster ${cluster} from region ${region} with Vault Image tag ${VAULT_VERSION}"
-  cd /opt/coupa-flash/CE-15118 && bundle exec rake services:ecs:update_docker_image["${cluster}","${VAULT_VERSION}"]
+  infoLog "Upgrading AWS Coupadev Vault Cluster ${cluster} from region ${region} with Vault Image tag ${VAULT_VERSION}"
+  cd /opt/coupa-flash/5.0 && bundle exec rake services:ecs:update_docker_image["${cluster}","${VAULT_VERSION}"]
 }
 
 CD_OPERATION="$1"
