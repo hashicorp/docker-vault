@@ -9,3 +9,17 @@ There are several pieces that are used to build this image:
   the container can access Atlas features as well.
 * Finally a specific Vault build is fetched and the rest of the Vault-specific
   configuration happens according to the Dockerfile.
+
+## Submitting UBI Images to the RedHat Container Registry
+
+Build the images:
+
+    make build
+
+Set the registry key and project ID (PID) for enterprise and OSS and push the images:
+
+    make push-images OSS_REGISTRY_KEY=... ENT_REGISTRY_KEY=... OSS_VAULT_PID=... ENT_VAULT_PID=...
+
+Part of the image push process will ask to press 'Enter' after verifying that
+the build image matches the expected version. The registry key and PID can be
+found in the RedHat portal.
