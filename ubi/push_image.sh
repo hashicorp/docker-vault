@@ -16,8 +16,8 @@ docker run --pull never -it ${REGISTRY_NAME}/${PROJECT_NAME}:${VAULT_VERSION}${T
 
 read -p "Version check for ${PROJECT_NAME}:${VAULT_VERSION}: Press enter to continue"
 
-echo docker tag ${REGISTRY_NAME}/${PROJECT_NAME}:${VAULT_VERSION}${TAG_SUFFIX} scan.connect.redhat.com/${VAULT_PID}/${PROJECT_NAME}:${VAULT_VERSION}${TAG_SUFFIX}
+docker tag ${REGISTRY_NAME}/${PROJECT_NAME}:${VAULT_VERSION}${TAG_SUFFIX} scan.connect.redhat.com/${VAULT_PID}/${PROJECT_NAME}:${VAULT_VERSION}${TAG_SUFFIX}
 
-echo docker login -u unused scan.connect.redhat.com --password="${REGISTRY_KEY}"
+docker login -u unused scan.connect.redhat.com --password="${REGISTRY_KEY}"
 
-echo docker push scan.connect.redhat.com/${VAULT_PID}/${PROJECT_NAME}:${VAULT_VERSION}${TAG_SUFFIX}
+docker push scan.connect.redhat.com/${VAULT_PID}/${PROJECT_NAME}:${VAULT_VERSION}${TAG_SUFFIX}
