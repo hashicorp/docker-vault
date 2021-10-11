@@ -3,10 +3,10 @@
 set -e
 
 # Check that all the required environment variables are set and not empty
-: ${REGISTRY_NAME:?}
+: ${REGISTRY_NAME:?} # image registry from the `make build` step, currently docker.io/hashicorp
 : ${PROJECT_NAME:?}  # either vault or vault-enterprise typically
-: ${VAULT_VERSION:?}
-: ${TAG_SUFFIX:?}
+: ${VAULT_VERSION:?} # built vault version (e.g. 1.8.4)
+: ${TAG_SUFFIX:?}    # UBI image tag suffix, typically -ubi or -ubi-ent
 : ${VAULT_PID:?}     # image UUID from the redhat portal
 : ${REGISTRY_KEY:?}  # image registry key from the redhat portal
 
