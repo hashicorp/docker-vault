@@ -24,7 +24,7 @@ RUN set -eux; \
     for server in \
         hkps://keys.openpgp.org \
         hkps://keyserver.ubuntu.com \
-        hkp://pgp.mit.edu:80 \
+        hkps://pgp.mit.edu \
     ; do \
         echo "Fetching GPG key $VAULT_GPGKEY from $server"; \
         gpg --batch --keyserver "$server" --recv-keys "$VAULT_GPGKEY" && found=yes && break; \
