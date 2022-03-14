@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.4
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.5
 
 LABEL maintainer="HashiCorp"
 ARG VAULT_VERSION=1.10.0-rc1
