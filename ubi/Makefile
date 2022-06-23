@@ -6,7 +6,7 @@ export VERSION=1.11.0
 build: ent-image oss-image fips-ent-image
 
 ent-image: export PROJECT_NAME=vault-enterprise
-ent-image: export TAG_SUFFIX=-ubi-ent
+ent-image: export TAG_SUFFIX=-ent-ubi
 ent-image:
 	docker build --label version=$(VERSION) --build-arg VAULT_VERSION=$(VERSION)+ent --no-cache -t $(REGISTRY_NAME)/$(PROJECT_NAME):$(VERSION)$(TAG_SUFFIX) .
 	@../scripts/tag-images.sh
@@ -37,7 +37,7 @@ ent-push-image: export REGISTRY_KEY=${ENT_REGISTRY_KEY}
 ent-push-image: export VAULT_PID=${ENT_VAULT_PID}
 ent-push-image: export VAULT_VERSION=$(VERSION)
 ent-push-image: export PROJECT_NAME=vault-enterprise
-ent-push-image: export TAG_SUFFIX=-ubi-ent
+ent-push-image: export TAG_SUFFIX=-ent-ubi
 ent-push-image:
 	@./push_image.sh
 
