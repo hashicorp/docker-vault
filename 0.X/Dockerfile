@@ -1,7 +1,7 @@
-FROM alpine:3.14
+FROM alpine:3.16
 
 # This is the release of Vault to pull in.
-ARG VAULT_VERSION=1.8.2
+ARG VAULT_VERSION=1.9.8
 
 # Install dependencies
 RUN \
@@ -30,9 +30,9 @@ RUN set -eux; \
     VAULT_GPGKEY=C874011F0AB405110D02105534365D9472D7468F; \
     found=''; \
     for server in \
-        hkp://p80.pool.sks-keyservers.net:80 \
-        hkp://keyserver.ubuntu.com:80 \
-        hkp://pgp.mit.edu:80 \
+        hkps://keys.openpgp.org \
+        hkps://keyserver.ubuntu.com \
+        hkps://pgp.mit.edu \
     ; do \
         echo "Fetching GPG key $VAULT_GPGKEY from $server"; \
         gpg --batch --keyserver "$server" --recv-keys "$VAULT_GPGKEY" && found=yes && break; \
@@ -46,6 +46,8 @@ RUN set -eux; \
     gpg --batch --verify vault_${VAULT_VERSION}_SHA256SUMS.sig vault_${VAULT_VERSION}_SHA256SUMS && \
     grep vault_${VAULT_VERSION}_linux_${ARCH}.zip vault_${VAULT_VERSION}_SHA256SUMS | sha256sum -c && \
     unzip -d /bin vault_${VAULT_VERSION}_linux_${ARCH}.zip && \
+    if [ -f /tmp/build/EULA.txt ]; then mkdir -p /usr/share/doc/vault; mv /tmp/build/EULA.txt /usr/share/doc/vault/EULA.txt; fi && \
+    if [ -f /tmp/build/TermsOfEvaluation.txt ]; then mkdir -p /usr/share/doc/vault; mv /tmp/build/TermsOfEvaluation.txt /usr/share/doc/vault/TermsOfEvaluation.txt; fi && \
     cd /tmp && \
     rm -rf /tmp/build && \
     gpgconf --kill dirmngr && \
