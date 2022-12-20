@@ -1,7 +1,7 @@
 FROM alpine:3.16
 
 # This is the release of Vault to pull in.
-ARG VAULT_VERSION=1.9.9
+ARG VAULT_VERSION=1.12.2
 
 # Install dependencies
 RUN \
