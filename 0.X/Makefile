@@ -19,7 +19,7 @@ oss-image:
 # This target is used in CI to cross compile vault and vault-ent for 4 different architectures
 # and publish (when XC_PUBLISH="--push") using docker buildx
 xc-prod-image:
-	docker buildx build --platform linux/amd64,linux/arm64,linux/386,linux/arm/v6 \
+	docker buildx build --platform linux/amd64,linux/arm64,linux/386,linux/arm/v6,linux/s390x \
 	--build-arg VAULT_VERSION=$(VERSION)$(VAULT_VERSION_SUFFIX) \
 	--label version=$(VERSION) \
 	$(XC_PUBLISH) \
