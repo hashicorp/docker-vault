@@ -1,4 +1,4 @@
-FROM alpine:3.14
+FROM alpine:3.18
 
 # This is the release of Vault to pull in.
 ARG VAULT_VERSION=1.13.2
