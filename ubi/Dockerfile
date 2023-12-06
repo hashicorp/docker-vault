@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 FROM registry.access.redhat.com/ubi8/ubi-minimal:8.6
 
 LABEL maintainer="HashiCorp"
