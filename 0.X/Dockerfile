@@ -17,6 +17,7 @@ RUN set -eux; \
         aarch64) ARCH='arm64' ;; \
         x86_64) ARCH='amd64' ;; \
         x86) ARCH='386' ;; \
+        s390x) ARCH='s390x' ;; \
         *) echo >&2 "error: unsupported architecture: $apkArch"; exit 1 ;; \
     esac && \
     VAULT_GPGKEY=C874011F0AB405110D02105534365D9472D7468F; \
@@ -32,6 +33,7 @@ RUN set -eux; \
     test -z "$found" && echo >&2 "error: failed to fetch GPG key $VAULT_GPGKEY" && exit 1; \
     mkdir -p /tmp/build && \
     cd /tmp/build && \
+    if [ "$ARCH" == "s390x" ]; then VAULT_VERSION=${VAULT_VERSION}+ent; fi && \
     wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_${ARCH}.zip && \
     wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_SHA256SUMS && \
     wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_SHA256SUMS.sig && \
