@@ -43,6 +43,12 @@ if [ -n "$VAULT_LOCAL_CONFIG" ]; then
     echo "$VAULT_LOCAL_CONFIG" > "$VAULT_CONFIG_DIR/local.json"
 fi
 
+# When enabling TLS and providing a passphrase-protected secret key file,
+# Pass in the VAULT_TLS_KEY_PASSPHRASE environment variable
+if [ -n "$VAULT_TLS_KEY_PASSPHRASE" ]; then
+    echo "Using the provided passphrase to decrypt the secret key file and enable TLS."
+fi
+
 # If the user is trying to run Vault directly with some arguments, then
 # pass them to Vault.
 if [ "${1:0:1}" = '-' ]; then
@@ -101,4 +107,4 @@ if [ "$1" = 'vault' ]; then
     fi
 fi
 
-exec "$@"
+echo "${VAULT_TLS_KEY_PASSPHRASE}" | exec "$@"
