@@ -1,3 +1,6 @@
+# DEPRECATION NOTICE
+Upcoming in Vault 1.14, we will stop publishing official Dockerhub images and publish only our Verified Publisher images. Users of Docker images should pull from `hashicorp/vault` instead of `vault`. Verified Publisher images can be found at https://hub.docker.com/r/hashicorp/vault.
+
 # About this Repo
 
 This is the Git repo of the Vault [official
